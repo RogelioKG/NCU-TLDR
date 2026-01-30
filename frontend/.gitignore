@@ -7,6 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# 本專案僅使用 pnpm，忽略其他套件管理員產生的 lockfile
+package-lock.json
+yarn.lock
+
 node_modules
 dist
 dist-ssr
@@ -22,3 +26,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.cursor
