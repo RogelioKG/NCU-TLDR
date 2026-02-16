@@ -1,8 +1,14 @@
 <script setup lang="ts">
+import type { Course } from '@/types'
 // CourseCard 元件 - 課程卡片（內容同 CourseDetail，右上角保留平均星星）
 import { computed, ref } from 'vue'
-import type { Course } from '@/types'
 import StarRating from './StarRating.vue'
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  select: [course: Course]
+}>()
 
 // 常數定義
 const COURSE_NAME_MAX_LENGTH = 7
@@ -10,12 +16,6 @@ const COURSE_NAME_MAX_LENGTH = 7
 interface Props {
   course: Course
 }
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-  select: [course: Course]
-}>()
 
 const isHovered = ref(false)
 
@@ -49,9 +49,13 @@ function handleClick() {
         <span class="course-card__rating">{{ averageRating }} ⭐</span>
       </div>
       <header class="course-card__header">
-        <h2 class="course-card__title">{{ displayCourseName }}</h2>
+        <h2 class="course-card__title">
+          {{ displayCourseName }}
+        </h2>
         <div class="course-card__divider" />
-        <p class="course-card__teacher">教師：{{ props.course.teacher }}</p>
+        <p class="course-card__teacher">
+          教師：{{ props.course.teacher }}
+        </p>
       </header>
 
       <div class="course-card__tags">

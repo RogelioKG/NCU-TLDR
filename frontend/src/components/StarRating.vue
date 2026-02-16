@@ -18,7 +18,8 @@ function getStarFill(index: number): 'full' | 'half' | 'empty' {
   const rating = props.rating
   if (rating >= index + 1) {
     return 'full'
-  } else if (rating >= index + 0.5) {
+  }
+  else if (rating >= index + 0.5) {
     return 'half'
   }
   return 'empty'
@@ -55,8 +56,8 @@ function getStarFill(index: number): 'full' | 'half' | 'empty' {
         >
           <defs>
             <linearGradient :id="`half-${i}`">
-              <stop offset="50%" :stop-color="'var(--color-star-filled)'" />
-              <stop offset="50%" :stop-color="'var(--color-star-empty)'" />
+              <stop offset="50%" stop-color="var(--color-star-filled)" />
+              <stop offset="50%" stop-color="var(--color-star-empty)" />
             </linearGradient>
           </defs>
           <path

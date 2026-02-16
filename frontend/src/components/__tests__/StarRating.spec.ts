@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import StarRating from '../StarRating.vue'
 
-describe('StarRating', () => {
+describe('starRating', () => {
   it('renders label when provided', () => {
     const wrapper = mount(StarRating, {
       props: { rating: 3, label: '教師風格' },

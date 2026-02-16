@@ -2,12 +2,11 @@
 // SearchBar 元件 - 膠囊型搜尋欄
 import { ref } from 'vue'
 
-const searchQuery = ref('')
-const isFocused = ref(false)
-
 const emit = defineEmits<{
   search: [query: string]
 }>()
+const searchQuery = ref('')
+const isFocused = ref(false)
 
 function handleSearch() {
   if (searchQuery.value.trim()) {

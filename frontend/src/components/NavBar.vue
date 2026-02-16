@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // NavBar 元件 - 磨砂玻璃效果導航列
 import { onMounted, onUnmounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 // 滾動偵測門檻值 (px)
 const SCROLL_THRESHOLD_PX = 20
@@ -30,12 +31,14 @@ onUnmounted(() => {
 <template>
   <nav class="navbar" :class="{ 'navbar--scrolled': isScrolled }">
     <div class="navbar__container">
-      <div class="navbar__brand">
+      <RouterLink to="/" class="navbar__brand">
         <span class="navbar__logo">📚</span>
         <span class="navbar__title">NCU TLDR</span>
-      </div>
+      </RouterLink>
       <div class="navbar__links" role="navigation" aria-label="主要導覽">
-        <a href="#" class="navbar__link navbar__link--active" aria-current="page" @click.prevent>首頁</a>
+        <RouterLink to="/" class="navbar__link" active-class="navbar__link--active">
+          首頁
+        </RouterLink>
         <a href="#" class="navbar__link" aria-label="我的評價" @click.prevent>我的評價</a>
         <a href="#" class="navbar__link" aria-label="我的等級" @click.prevent>我的等級</a>
         <a href="#" class="navbar__link" aria-label="關於我們" @click.prevent>關於我們</a>
@@ -85,6 +88,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  text-decoration: none; /* Remove underline from link */
 }
 
 .navbar__logo {
@@ -111,6 +115,7 @@ onUnmounted(() => {
   padding: var(--spacing-sm) 0;
   position: relative;
   transition: color var(--transition-fast);
+  text-decoration: none;
 }
 
 .navbar__link::after {

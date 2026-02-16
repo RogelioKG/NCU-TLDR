@@ -10,11 +10,11 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  'select-course': [course: Course]
+  selectCourse: [course: Course]
 }>()
 
 function handleSelectCourse(course: Course) {
-  emit('select-course', course)
+  emit('selectCourse', course)
 }
 </script>
 

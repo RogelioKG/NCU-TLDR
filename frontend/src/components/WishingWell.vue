@@ -1,21 +1,21 @@
 <script setup lang="ts">
+import type { WishCourse } from '@/types'
 // WishingWell 元件 - 許願池側邊欄
 import { ref } from 'vue'
-import type { WishCourse } from '@/types'
-import { mockWishList as initialWishList } from '@/mock/wishList'
 import wishingWellImg from '@/assets/wishing_well_spritual_no_bg.png'
+import { mockWishList as initialWishList } from '@/mock/wishList'
+
+const emit = defineEmits<{
+  selectCourse: [course: WishCourse]
+}>()
 
 // 許願池資料（來自 mock，未來可改為 store / API）
 const wishList = ref<WishCourse[]>([...initialWishList])
 
 const hoveredItem = ref<number | null>(null)
 
-const emit = defineEmits<{
-  'select-course': [course: WishCourse]
-}>()
-
 function handleSelectCourse(course: WishCourse) {
-  emit('select-course', course)
+  emit('selectCourse', course)
 }
 </script>
 
@@ -24,40 +24,44 @@ function handleSelectCourse(course: WishCourse) {
     <!-- 裝飾性背景卡片 -->
     <div class="wishing-well__bg-card wishing-well__bg-card--1" />
     <div class="wishing-well__bg-card wishing-well__bg-card--2" />
-    
+
     <!-- 主卡片 -->
     <div class="wishing-well__card">
       <header class="wishing-well__header">
         <span class="wishing-well__icon">✨</span>
-        <h2 class="wishing-well__title">許願池</h2>
+        <h2 class="wishing-well__title">
+          許願池
+        </h2>
       </header>
-      
-      <ul class="wishing-well__list">
-        <li
-          v-for="(course, index) in wishList"
-          :key="course.id"
-          class="wishing-well__item"
-          :class="{ 'wishing-well__item--hovered': hoveredItem === course.id }"
-          @mouseenter="hoveredItem = course.id"
-          @mouseleave="hoveredItem = null"
-          @click="handleSelectCourse(course)"
-        >
-          <span class="wishing-well__number">{{ index + 1 }}.</span>
-          <div class="wishing-well__course-info">
-            <span class="wishing-well__course-name">{{ course.name }}</span>
-            <span class="wishing-well__separator">-</span>
-            <span class="wishing-well__teacher">{{ course.teacher }}</span>
-          </div>
-        </li>
-      </ul>
-      
-      <button type="button" class="wishing-well__add-btn" aria-label="許願池">
-        <img
-          :src="wishingWellImg"
-          alt="許願池"
-          class="wishing-well__add-img"
-        />
-      </button>
+
+      <div class="wishing-well__body">
+        <ul class="wishing-well__list">
+          <li
+            v-for="(course, index) in wishList"
+            :key="course.id"
+            class="wishing-well__item"
+            :class="{ 'wishing-well__item--hovered': hoveredItem === course.id }"
+            @mouseenter="hoveredItem = course.id"
+            @mouseleave="hoveredItem = null"
+            @click="handleSelectCourse(course)"
+          >
+            <span class="wishing-well__number">{{ index + 1 }}.</span>
+            <div class="wishing-well__course-info">
+              <span class="wishing-well__course-name">{{ course.name }}</span>
+              <span class="wishing-well__separator">-</span>
+              <span class="wishing-well__teacher">{{ course.teacher }}</span>
+            </div>
+          </li>
+        </ul>
+
+        <button type="button" class="wishing-well__add-btn" aria-label="許願池">
+          <img
+            :src="wishingWellImg"
+            alt="許願池"
+            class="wishing-well__add-img"
+          >
+        </button>
+      </div>
     </div>
   </aside>
 </template>
@@ -120,11 +124,17 @@ function handleSelectCourse(course: WishCourse) {
   letter-spacing: 1px;
 }
 
+.wishing-well__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
 .wishing-well__list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 0;
 }
 
 .wishing-well__item {
@@ -196,5 +206,47 @@ function handleSelectCourse(course: WishCourse) {
   height: auto;
   object-fit: contain;
   border-radius: var(--radius-md);
+}
+
+@media (max-width: 1024px) {
+  .wishing-well {
+    width: 100%;
+  }
+
+  .wishing-well__body {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .wishing-well__list {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .wishing-well__add-btn {
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    min-width: 110px;
+    max-width: 220px;
+    display: flex;
+    align-self: stretch;
+    align-items: stretch;
+  }
+
+  .wishing-well__add-img {
+    width: auto;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 640px) {
+  .wishing-well__add-btn {
+    min-width: 88px;
+    max-width: 140px;
+  }
 }
 </style>

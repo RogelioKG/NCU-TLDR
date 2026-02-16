@@ -13,6 +13,46 @@ export interface CourseRatings {
   teacherStyle: number
 }
 
+export interface GradingItem {
+  /** 配分名稱 (e.g. 作業、期中、期末) */
+  label: string
+  /** 佔比百分比 (0-100) */
+  percentage: number
+}
+
+export interface CourseSummary {
+  /** 課程概述 */
+  overview: string
+  /** 適合族群 */
+  targetAudience: string
+  /** 上課用書 */
+  textbook: string
+  /** 建議先備知識 */
+  prerequisites: string
+  /** 平均每週額外投入時間 */
+  weeklyHours: string
+  /** 配分方式（結構化） */
+  gradingItems: GradingItem[]
+  /** 常見雷點或注意事項 */
+  notes: string
+  /** AI 統整參考的評價數量 */
+  reviewCount: number
+}
+
+export interface CourseComment {
+  id: number
+  user: string
+  /** 留言標題 / 一句話摘要 */
+  title: string
+  /** 留言內文 */
+  content: string
+  date: string
+  /** 按讚數 */
+  likes: number
+  /** 倒讚數 */
+  dislikes: number
+}
+
 export interface Course {
   /** 課程唯一識別碼 */
   id: number
@@ -24,6 +64,23 @@ export interface Course {
   tags: string[]
   /** 各項評分 */
   ratings: CourseRatings
+
+  /** 開課學期 (Optional for mock) */
+  semester?: string
+  /** 系所/單位 (Optional for mock) */
+  schoolDept?: string
+  /** 課號 (Optional for mock) */
+  code?: string
+  /** 上課時間 (Optional for mock) */
+  time?: string
+  /** 學分數 (Optional for mock) */
+  credits?: number
+  /** 必修/選修 (Optional for mock) */
+  type?: string
+  /**  (Optional for mock) */
+  summary?: CourseSummary
+  /** 匿名留言串 (Optional for mock) */
+  comments?: CourseComment[]
 }
 
 export interface WishCourse {
