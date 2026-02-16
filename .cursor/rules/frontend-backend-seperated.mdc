@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Consider the purpose and decide which directory to edit, `./backend` or `./frontend`. Also add all dependent packages to that directory.
