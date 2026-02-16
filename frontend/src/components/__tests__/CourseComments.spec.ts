@@ -1,7 +1,7 @@
+import type { CourseComment } from '@/types'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import CourseComments from '../CourseComments.vue'
-import type { CourseComment } from '@/types'
 
 const mockComments: CourseComment[] = [
   {
@@ -24,7 +24,7 @@ const mockComments: CourseComment[] = [
   },
 ]
 
-describe('CourseComments', () => {
+describe('course comments', () => {
   it('renders title', () => {
     const wrapper = mount(CourseComments, {
       props: { comments: mockComments },
