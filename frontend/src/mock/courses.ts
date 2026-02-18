@@ -132,7 +132,7 @@ export const mockCourses: Course[] = [
     id: 8,
     name: '人工智慧導論',
     teacher: '李教授',
-    tags: ['熱門', '前沿'],
+    tags: [],
     ratings: {
       reward: 5,
       score: 4.5,
@@ -152,4 +152,17 @@ export const mockCourses: Course[] = [
       teacherStyle: 4,
     },
   },
+  // 產生 200 筆 mock 資料，ID: 10~240
+  ...Array.from({ length: 200 }, (_, i) => ({
+    id: i + 10,
+    name: `${i + 10}`,
+    teacher: `${i + 10}`,
+    tags: [],
+    ratings: {
+      reward: 0,
+      score: 0,
+      easiness: 0,
+      teacherStyle: 0,
+    },
+  })),
 ]

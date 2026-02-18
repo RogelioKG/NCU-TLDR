@@ -179,8 +179,10 @@ function handleClick() {
 .course-card__tags {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   justify-content: center;
   gap: var(--spacing-xs);
+  min-height: var(--row-tags-height, 0px);
   margin-bottom: var(--spacing-sm);
 }
 

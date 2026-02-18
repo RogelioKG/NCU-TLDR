@@ -91,3 +91,18 @@ export interface WishCourse {
   /** 授課教師 */
   teacher: string
 }
+
+/** 排序方向 */
+export type SortDirection = 'desc' | 'asc'
+
+/** 單一排序條件 */
+export interface SortCriterion {
+  /** 排序欄位（對應 CourseRatings 的 key） */
+  field: keyof CourseRatings
+  /** 顯示名稱 */
+  label: string
+  /** 排序方向 */
+  direction: SortDirection
+  /** 是否啟用 */
+  enabled: boolean
+}

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import type { Course, WishCourse } from '@/types'
-import { ref } from 'vue'
+import type { Course, SortCriterion, WishCourse } from '@/types'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import CourseFilterSort from '@/components/CourseFilterSort.vue'
 import CourseGrid from '@/components/CourseGrid.vue'
+import CoursePagination from '@/components/CoursePagination.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import WishingWell from '@/components/WishingWell.vue'
 import { mockCourses } from '@/mock/courses'
@@ -13,8 +15,53 @@ const router = useRouter()
 const courses = ref<Course[]>([...mockCourses])
 const searchQuery = ref('')
 
+// --- 排序 ---
+const sortCriteria = ref<SortCriterion[]>([
+  { field: 'reward', label: '收穫', direction: 'desc', enabled: true },
+  { field: 'score', label: '分數', direction: 'desc', enabled: false },
+  { field: 'easiness', label: '輕鬆', direction: 'desc', enabled: false },
+  { field: 'teacherStyle', label: '教師風格', direction: 'desc', enabled: false },
+])
+
+// --- 分頁 ---
+const pageSize = ref(20)
+const currentPage = ref(1)
+
+// 排序後的課程
+const sortedCourses = computed(() => {
+  const activeCriteria = sortCriteria.value.filter(c => c.enabled)
+  if (activeCriteria.length === 0)
+    return courses.value
+
+  return [...courses.value].sort((a, b) => {
+    for (const criterion of activeCriteria) {
+      const valA = a.ratings[criterion.field]
+      const valB = b.ratings[criterion.field]
+      if (valA !== valB) {
+        return criterion.direction === 'desc' ? valB - valA : valA - valB
+      }
+    }
+    return 0
+  })
+})
+
+// 總頁數
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(sortedCourses.value.length / pageSize.value)),
+)
+
+// 當前頁面的課程
+const pagedCourses = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return sortedCourses.value.slice(start, start + pageSize.value)
+})
+
+// 排序或每頁數量改變時重置回第一頁
+watch([sortCriteria, pageSize], () => {
+  currentPage.value = 1
+}, { deep: true })
+
 function handleSelectCourse(course: Course) {
-  // 跳轉到課程詳情頁面
   router.push({ name: 'course-detail', params: { id: course.id } })
 }
 
@@ -24,7 +71,6 @@ function handleSearch(query: string) {
 }
 
 function handleWishCourseSelect(course: WishCourse) {
-  // 從許願池選擇課程時，嘗試在課程列表中找到對應課程
   const found = courses.value.find(c => c.name === course.name)
   if (found) {
     handleSelectCourse(found)
@@ -44,13 +90,28 @@ function handleWishCourseSelect(course: WishCourse) {
         <SearchBar @search="handleSearch" />
       </div>
 
+      <!-- 篩選與排序控制 -->
+      <CourseFilterSort
+        :sort-criteria="sortCriteria"
+        :page-size="pageSize"
+        @update:sort-criteria="sortCriteria = $event"
+        @update:page-size="pageSize = $event"
+      />
+
       <!-- 課程網格 -->
       <section class="main__grid-section">
         <CourseGrid
-          :courses="courses"
+          :courses="pagedCourses"
           @select-course="handleSelectCourse"
         />
       </section>
+
+      <!-- 分頁導覽 -->
+      <CoursePagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @update:current-page="currentPage = $event"
+      />
     </div>
   </div>
 </template>

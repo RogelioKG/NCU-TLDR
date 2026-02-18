@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // CourseGrid 元件 - 課程卡片網格（僅顯示實際課程，無佔位符）
 import type { Course } from '@/types'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CourseCard from './CourseCard.vue'
 
 interface Props {
@@ -13,19 +14,85 @@ const emit = defineEmits<{
   selectCourse: [course: Course]
 }>()
 
+const courseItems = ref<HTMLElement[]>([])
+const rowTagHeights = ref<number[]>([])
+
+function recalculateRowTagHeights() {
+  const items = courseItems.value
+  if (items.length === 0) {
+    rowTagHeights.value = []
+    return
+  }
+
+  const rowTopToMaxTagHeight = new Map<number, number>()
+  const itemRowTops: number[] = []
+  const heights: number[] = []
+
+  items.forEach((item, index) => {
+    const top = Math.round(item.getBoundingClientRect().top)
+    itemRowTops[index] = top
+
+    const tagsElement = item.querySelector<HTMLElement>('.course-card__tags')
+    const tagHeight = Math.ceil(tagsElement?.getBoundingClientRect().height ?? 0)
+    const currentMax = rowTopToMaxTagHeight.get(top) ?? 0
+    if (tagHeight > currentMax) {
+      rowTopToMaxTagHeight.set(top, tagHeight)
+    }
+  })
+
+  itemRowTops.forEach((top, index) => {
+    heights[index] = rowTopToMaxTagHeight.get(top) ?? 0
+  })
+
+  rowTagHeights.value = heights
+}
+
+function scheduleRecalculate() {
+  nextTick(() => {
+    recalculateRowTagHeights()
+  })
+}
+
+function handleResize() {
+  scheduleRecalculate()
+}
+
 function handleSelectCourse(course: Course) {
   emit('selectCourse', course)
 }
+
+watch(
+  () => props.courses,
+  () => {
+    scheduleRecalculate()
+  },
+  { deep: true, immediate: true },
+)
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  scheduleRecalculate()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
   <div class="course-grid">
-    <CourseCard
-      v-for="course in props.courses"
+    <div
+      v-for="(course, index) in props.courses"
       :key="course.id"
-      :course="course"
-      @select="handleSelectCourse"
-    />
+      ref="courseItems"
+      class="course-grid__item"
+      :style="{ '--row-tags-height': `${rowTagHeights[index] ?? 0}px` }"
+    >
+      <CourseCard
+        :course="course"
+        @select="handleSelectCourse"
+      />
+    </div>
   </div>
 </template>
 
@@ -37,6 +104,10 @@ function handleSelectCourse(course: Course) {
   gap: var(--spacing-lg);
   align-items: stretch; /* 同一排卡片高度與該排最高者相同 */
   animation: fadeIn 0.5s ease;
+}
+
+.course-grid__item {
+  min-height: 0;
 }
 
 @keyframes fadeIn {
