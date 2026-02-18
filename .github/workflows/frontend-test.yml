@@ -5,11 +5,15 @@ on:
     branches: [main, develop]
     paths:
       - 'frontend/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/frontend-test.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'frontend/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/frontend-test.yml'
 
 jobs:
@@ -34,7 +38,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
