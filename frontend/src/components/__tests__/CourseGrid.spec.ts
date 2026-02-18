@@ -44,8 +44,8 @@ describe('courseGrid', () => {
 
     const firstCard = cards[0]!
     await firstCard.trigger('click')
-    expect(wrapper.emitted('select-course')).toBeTruthy()
-    expect(wrapper.emitted('select-course')?.[0]).toEqual([mockCourses[0]])
+    expect(wrapper.emitted('selectCourse')).toBeTruthy()
+    expect(wrapper.emitted('selectCourse')?.[0]).toEqual([mockCourses[0]])
   })
 
   it('has correct grid layout class', () => {

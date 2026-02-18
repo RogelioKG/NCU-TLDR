@@ -50,7 +50,7 @@ describe('wishingWell', () => {
     const wrapper = mount(WishingWell)
     const firstItem = wrapper.find('.wishing-well__item')
     await firstItem.trigger('click')
-    expect(wrapper.emitted('select-course')).toBeTruthy()
+    expect(wrapper.emitted('selectCourse')).toBeTruthy()
   })
 
   it('renders add button with image', () => {
