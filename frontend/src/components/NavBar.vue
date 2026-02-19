@@ -32,7 +32,7 @@ onUnmounted(() => {
   <nav class="navbar" :class="{ 'navbar--scrolled': isScrolled }">
     <div class="navbar__container">
       <RouterLink to="/" class="navbar__brand">
-        <span class="navbar__logo">📚</span>
+        <img src="/logo.png" alt="NCU TLDR Logo" class="navbar__logo" width="33" height="38" />
         <span class="navbar__title">NCU TLDR</span>
       </RouterLink>
       <div class="navbar__links" role="navigation" aria-label="主要導覽">
@@ -92,7 +92,7 @@ onUnmounted(() => {
 }
 
 .navbar__logo {
-  font-size: var(--font-size-xl);
+  object-fit: contain;
 }
 
 .navbar__title {
