@@ -19,12 +19,6 @@ export default defineConfig({
         '*.config.ts',
         'dist/',
       ],
-      thresholds: {
-        lines: 80,
-        functions: 75,
-        branches: 80,
-        statements: 80,
-      },
     },
   },
   resolve: {

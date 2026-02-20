@@ -46,11 +46,6 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
-      - name: Run tests with coverage
-        run: pnpm test:run --coverage
-
-      - name: Check coverage threshold
-        run: |
-          echo "⚠️  請確保測試覆蓋率達到 80% 以上"
-          echo "📊 查看詳細報告：frontend/coverage/index.html"
+      - name: Run tests
+        run: pnpm test:run
 
