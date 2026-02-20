@@ -11,6 +11,7 @@
 | **反正規化** | 高頻讀取的聚合值（平均星星、投票數）做 denormalized cache，由 application 或 trigger 更新 |
 | **匿名留言** | 前端不暴露 `user_id`，DB 層保留 FK 供管理員追查 |
 | **正規化** | `departments` 與 `teachers` 獨立成表，避免文字冗餘、確保一致性 |
+| **可信度** | 用戶具備 `credibility_score`，影響星等權重、AI 摘要引用與留言排序 |
 
 ---
 
@@ -59,6 +60,7 @@ erDiagram
 | `password_hash` | `VARCHAR(255)` | | 密碼雜湊（OAuth 用戶可 NULL） |
 | `display_name` | `VARCHAR(100)` | `NOT NULL` | 顯示名稱 |
 | `guide_level` | `SMALLINT` | `NOT NULL DEFAULT 0` | 嚮導等級（gamification） |
+| `credibility_score` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 1.0` | 可信度權重（0.1~5.0，預設 1.0） |
 | `avatar_url` | `TEXT` | | 頭像 URL |
 | `total_reviews` | `INTEGER` | `NOT NULL DEFAULT 0` | 累計評價數（denormalized） |
 | `total_comments` | `INTEGER` | `NOT NULL DEFAULT 0` | 累計留言數（denormalized） |
@@ -74,6 +76,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash       VARCHAR(255),
     display_name        VARCHAR(100) NOT NULL,
     guide_level         SMALLINT    NOT NULL DEFAULT 0,
+    credibility_score   NUMERIC(3,2) NOT NULL DEFAULT 1.0 CHECK (credibility_score BETWEEN 0.1 AND 5.0),
     avatar_url          TEXT,
     total_reviews       INTEGER     NOT NULL DEFAULT 0,
     total_comments      INTEGER     NOT NULL DEFAULT 0,
@@ -82,6 +85,11 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
+
+> **credibility_score**：動態計算的信任值。亂填星等/低品質評論會降低此值。影響力：
+> 1. **星等加權**：計算課程 `avg_*` 時，乘以此權重。
+> 2. **AI 摘要**：低分用戶的評論較不被 AI 採納。
+> 3. **排序**：低分用戶的留言在「熱門」排序中權重較低。
 
 ---
 
@@ -153,17 +161,18 @@ CREATE TABLE IF NOT EXISTS teachers (
 | `course_type` | `VARCHAR(20)` | `NOT NULL` | 必修 / 選修 / 通識 |
 | `schedule` | `VARCHAR(100)` | | 上課時間（e.g. 四234） |
 | `last_offered_semester` | `VARCHAR(20)` | | 最後開課學期（e.g. 113-2） |
-| `avg_reward` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 收穫平均（denormalized） |
-| `avg_score` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 分數平均（denormalized） |
-| `avg_easiness` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 輕鬆平均（denormalized） |
-| `avg_teacher_style` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 教師風格平均（denormalized） |
-| `avg_overall` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 綜合加權平均（denormalized） |
+| `avg_reward` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 收穫平均（加權後） |
+| `avg_score` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 分數平均（加權後） |
+| `avg_easiness` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 輕鬆平均（加權後） |
+| `avg_teacher_style` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 教師風格平均（加權後） |
+| `avg_overall` | `NUMERIC(3,2)` | `NOT NULL DEFAULT 0` | 綜合平均（加權後） |
 | `review_count` | `INTEGER` | `NOT NULL DEFAULT 0` | 評價總數（denormalized） |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | 建立時間 |
 | `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | 更新時間 |
 
-> **綜合加權公式**：`reward × 0.35 + score × 0.20 + easiness × 0.15 + teacher_style × 0.30`
-> （與前端 `CourseStarEvaluation.vue` 一致）
+> **可信度加權平均公式**：
+> `Sum(Rating * UserCredibility) / Sum(UserCredibility)`
+> 避免惡意洗分用戶大幅影響課程分數。
 
 ```sql
 CREATE TABLE IF NOT EXISTS courses (
@@ -292,7 +301,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 > **PK 選型：SERIAL** — 與 courses 1:1，ID 僅供內部識別，不對外暴露。
 
-每門課程一筆，由後端排程 / 手動觸發根據所有 reviews 彙整產生。
+每門課程一筆，由後端排程 / 手動觸發根據所有 reviews 彙整產生。 **AI 統整時會優先採用高可信度用戶（credibility_score 高）的評價內容。**
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
@@ -522,17 +531,23 @@ CREATE INDEX IF NOT EXISTS idx_wish_votes_wish        ON wish_votes (wish_id);
 
 ---
 
-## 6. 聚合值更新策略（Denormalization）
+## 6. 聚合值更新策略（Denormalization & Credibility）
 
 以下欄位為反正規化快取，需在資料異動時同步更新：
 
 | 目標表.欄位 | 觸發條件 | 更新邏輯 |
 |-------------|----------|----------|
-| `courses.avg_*` / `avg_overall` / `review_count` | `reviews` INSERT / UPDATE / DELETE | 重新 `AVG()` 該課程所有 reviews 的各維度，計算加權綜合分 |
-| `comments.likes` / `dislikes` | `comment_votes` INSERT / UPDATE / DELETE | `COUNT(*) WHERE vote_type = 1` / `COUNT(*) WHERE vote_type = -1` |
+| `courses.avg_*` / `avg_overall` | `reviews` or `users.credibility_score` update | **加權平均**：`Sum(Rating × UserCredibility) / Sum(UserCredibility)` |
+| `courses.review_count` | `reviews` INSERT / DELETE | `COUNT(*)` 該課程所有 reviews |
+| `comments.likes` / `dislikes` | `comment_votes` INSERT / UPDATE / DELETE | `COUNT(*)` 依類別統計 |
 | `wishes.vote_count` | `wish_votes` INSERT / DELETE | `COUNT(*)` 該 wish 的所有 votes |
 | `users.total_reviews` | `reviews` INSERT / DELETE | `COUNT(*)` 該 user 的所有 reviews |
 | `users.total_comments` | `comments` INSERT / DELETE | `COUNT(*)` 該 user 的所有 comments |
+
+> **Credibility Impact**:
+> - **AI 摘要**：AI 生成摘要時，輸入的 prompt 會根據 `user.credibility_score` 對 review 進行篩選或排序，優先採用高可信度評論。
+> - **Hashtag**：`courses.tags` 的生成與計數同樣受可信度加權影響，避免惡意洗標籤。
+> - **留言排序**：`comments` 在 API 列表回傳時，預設排序分數 = `(likes - dislikes) * user.credibility_score`，使高可信度用戶的發言更容易被看見。
 
 > **建議**：初期用 application-level 更新；上線後若效能瓶頸再改用 PostgreSQL trigger。
 
@@ -647,6 +662,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash       VARCHAR(255),
     display_name        VARCHAR(100) NOT NULL,
     guide_level         SMALLINT    NOT NULL DEFAULT 0,
+    credibility_score   NUMERIC(3,2) NOT NULL DEFAULT 1.0 CHECK (credibility_score BETWEEN 0.1 AND 5.0),
     avatar_url          TEXT,
     total_reviews       INTEGER     NOT NULL DEFAULT 0,
     total_comments      INTEGER     NOT NULL DEFAULT 0,
@@ -839,4 +855,3 @@ CREATE INDEX IF NOT EXISTS idx_wish_votes_wish        ON wish_votes (wish_id);
 ```
 
 </details>
-    
