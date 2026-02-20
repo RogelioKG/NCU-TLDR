@@ -32,7 +32,7 @@ onUnmounted(() => {
   <nav class="navbar" :class="{ 'navbar--scrolled': isScrolled }">
     <div class="navbar__container">
       <RouterLink to="/" class="navbar__brand">
-        <img src="/logo.png" alt="NCU TLDR Logo" class="navbar__logo" width="33" height="38" />
+        <img src="/logo.png" alt="NCU TLDR Logo" class="navbar__logo" width="33" height="38">
         <span class="navbar__title">NCU TLDR</span>
       </RouterLink>
       <div class="navbar__links" role="navigation" aria-label="主要導覽">
