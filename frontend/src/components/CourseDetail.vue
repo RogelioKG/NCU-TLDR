@@ -52,7 +52,7 @@ function handleSearch(_query: string) {
 
         <!-- 右側欄：AI 摘要 + 留言 -->
         <div class="cdp__content">
-          <CourseAISummary :summary="course.summary" />
+          <CourseAISummary :summary="course.summary" :course-name="course.name" />
           <CourseComments :comments="course.comments ?? []" />
         </div>
       </div>

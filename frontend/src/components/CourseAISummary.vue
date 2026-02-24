@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { CourseSummary } from '@/types'
+import { ref } from 'vue'
+import CourseReviewForm from './CourseReviewForm.vue'
 import GradingPieChart from './GradingPieChart.vue'
 
 defineProps<{
   summary: CourseSummary | undefined
+  courseName?: string
 }>()
+
+const showReviewForm = ref(false)
 </script>
 
 <template>
@@ -70,11 +75,17 @@ defineProps<{
         <p class="ai-summary__empty-text">
           你是第一個留下修課經驗的人，第一個撰寫的人可獲得最多積分！
         </p>
-        <button class="ai-summary__empty-btn" type="button">
+        <button class="ai-summary__empty-btn" type="button" @click="showReviewForm = true">
           撰寫評價
         </button>
       </div>
     </div>
+
+    <CourseReviewForm
+      v-if="showReviewForm"
+      :course-name="courseName ?? ''"
+      @close="showReviewForm = false"
+    />
   </section>
 </template>
 
