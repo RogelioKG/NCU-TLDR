@@ -55,37 +55,39 @@ function goToPage(page: number) {
 </script>
 
 <template>
-  <nav v-if="totalPages > 1" class="pagination" aria-label="分頁導覽">
-    <!-- 上一頁 -->
-    <button
-      class="pagination__btn pagination__btn--nav"
-      :disabled="currentPage <= 1"
-      @click="goToPage(currentPage - 1)"
-    >
-      ‹
-    </button>
-
-    <!-- 頁碼 -->
-    <template v-for="(page, idx) in visiblePages" :key="idx">
-      <span v-if="page === '...'" class="pagination__ellipsis">…</span>
+  <nav class="pagination" aria-label="分頁導覽">
+    <div v-if="totalPages > 1" class="pagination__pages">
+      <!-- 上一頁 -->
       <button
-        v-else
-        class="pagination__btn"
-        :class="{ 'pagination__btn--active': page === currentPage }"
-        @click="goToPage(page as number)"
+        class="pagination__btn pagination__btn--nav"
+        :disabled="currentPage <= 1"
+        @click="goToPage(currentPage - 1)"
       >
-        {{ page }}
+        ‹
       </button>
-    </template>
 
-    <!-- 下一頁 -->
-    <button
-      class="pagination__btn pagination__btn--nav"
-      :disabled="currentPage >= totalPages"
-      @click="goToPage(currentPage + 1)"
-    >
-      ›
-    </button>
+      <!-- 頁碼 -->
+      <template v-for="(page, idx) in visiblePages" :key="idx">
+        <span v-if="page === '...'" class="pagination__ellipsis">…</span>
+        <button
+          v-else
+          class="pagination__btn"
+          :class="{ 'pagination__btn--active': page === currentPage }"
+          @click="goToPage(page as number)"
+        >
+          {{ page }}
+        </button>
+      </template>
+
+      <!-- 下一頁 -->
+      <button
+        class="pagination__btn pagination__btn--nav"
+        :disabled="currentPage >= totalPages"
+        @click="goToPage(currentPage + 1)"
+      >
+        ›
+      </button>
+    </div>
   </nav>
 </template>
 
@@ -94,8 +96,17 @@ function goToPage(page: number) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
+  width: 100%;
+}
+
+.pagination__pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 auto;
 }
 
 .pagination__btn {
@@ -145,5 +156,17 @@ function goToPage(page: number) {
   height: 32px;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .pagination__pages {
+    justify-content: center;
+  }
 }
 </style>

@@ -60,6 +60,7 @@ defineProps<{
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-lg);
   letter-spacing: 0.03em;
+  text-align: center;
 }
 
 .basic-info__cards {
