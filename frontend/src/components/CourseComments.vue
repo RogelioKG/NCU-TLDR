@@ -30,9 +30,9 @@ function submitComment() {
 <template>
   <section class="comments" aria-label="匿名留言串">
     <header class="comments__header">
-      <h3 class="comments__title">
+      <h2 class="comments__title">
         匿名留言串
-      </h3>
+      </h2>
       <div class="comments__sort">
         <span class="comments__sort-label">排序：</span>
         <button
@@ -128,7 +128,7 @@ function submitComment() {
 }
 
 .comments__title {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: 800;
   color: var(--color-text-primary);
 }
