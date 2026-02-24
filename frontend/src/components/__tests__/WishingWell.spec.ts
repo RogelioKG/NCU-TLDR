@@ -1,6 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 import WishingWell from '../WishingWell.vue'
+import WishingWellFormToast from '../WishingWellFormToast.vue'
 
 describe('wishingWell', () => {
   it('renders title', () => {
@@ -58,6 +60,29 @@ describe('wishingWell', () => {
     const addBtn = wrapper.find('.wishing-well__add-btn')
     expect(addBtn.exists()).toBe(true)
     expect(addBtn.find('img').exists()).toBe(true)
+  })
+
+  it('opens wishing well form toast when add button is clicked', async () => {
+    const wrapper = mount(WishingWell)
+    await wrapper.get('.wishing-well__add-btn').trigger('click')
+    expect(wrapper.findComponent(WishingWellFormToast).exists()).toBe(true)
+  })
+
+  it('adds a new wish item after toast form submit', async () => {
+    const wrapper = mount(WishingWell)
+    const originalItemCount = wrapper.findAll('.wishing-well__item').length
+
+    await wrapper.get('.wishing-well__add-btn').trigger('click')
+    wrapper.getComponent(WishingWellFormToast).vm.$emit('submit', {
+      name: '雲端原生應用',
+      teacher: '王小明',
+    })
+    await nextTick()
+
+    const items = wrapper.findAll('.wishing-well__item')
+    expect(items.length).toBe(originalItemCount + 1)
+    expect(wrapper.text()).toContain('雲端原生應用')
+    expect(wrapper.text()).toContain('王小明')
   })
 
   it('renders background cards for stacking effect', () => {

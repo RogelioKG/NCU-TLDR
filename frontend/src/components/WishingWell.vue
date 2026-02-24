@@ -4,6 +4,7 @@ import type { WishCourse } from '@/types'
 import { ref } from 'vue'
 import wishingWellImg from '@/assets/wishing_well_spritual_no_bg.png'
 import { mockWishList as initialWishList } from '@/mock/wishList'
+import WishingWellFormToast from './WishingWellFormToast.vue'
 
 const emit = defineEmits<{
   selectCourse: [course: WishCourse]
@@ -13,9 +14,23 @@ const emit = defineEmits<{
 const wishList = ref<WishCourse[]>([...initialWishList])
 
 const hoveredItem = ref<number | null>(null)
+const showWishForm = ref(false)
 
 function handleSelectCourse(course: WishCourse) {
   emit('selectCourse', course)
+}
+
+function handleSubmitWish(payload: { name: string, teacher: string }) {
+  const maxId = wishList.value.reduce((currentMaxId, item) => Math.max(currentMaxId, item.id), 0)
+  wishList.value = [
+    ...wishList.value,
+    {
+      id: maxId + 1,
+      name: payload.name,
+      teacher: payload.teacher,
+    },
+  ]
+  showWishForm.value = false
 }
 </script>
 
@@ -54,15 +69,29 @@ function handleSelectCourse(course: WishCourse) {
           </li>
         </ul>
 
-        <button type="button" class="wishing-well__add-btn" aria-label="許願池">
-          <img
-            :src="wishingWellImg"
-            alt="許願池"
-            class="wishing-well__add-img"
-          >
+        <button
+          type="button"
+          class="wishing-well__add-btn"
+          aria-label="許願池"
+          @click="showWishForm = true"
+        >
+          <span class="wishing-well__add-wrap">
+            <img
+              :src="wishingWellImg"
+              alt="許願池"
+              class="wishing-well__add-img"
+            >
+            <span class="wishing-well__add-hint">點此許願</span>
+          </span>
         </button>
       </div>
     </div>
+
+    <WishingWellFormToast
+      v-if="showWishForm"
+      @close="showWishForm = false"
+      @submit="handleSubmitWish"
+    />
   </aside>
 </template>
 
@@ -200,12 +229,54 @@ function handleSelectCourse(course: WishCourse) {
   opacity: 0.9;
 }
 
+.wishing-well__add-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
 .wishing-well__add-img {
   display: block;
   width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: var(--radius-md);
+}
+
+.wishing-well__add-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 2px 6px rgba(20, 48, 60, 0.28);
+  transform-origin: center;
+  animation: wishing-well-hint-pulse 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.wishing-well__add-btn:hover .wishing-well__add-hint {
+  animation-duration: 1.7s;
+}
+
+@keyframes wishing-well-hint-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.58;
+  }
+  35% {
+    transform: translateY(-4px) scale(1.08);
+    opacity: 0.8;
+  }
+  65% {
+    transform: translateY(1px) scale(0.95);
+    opacity: 0.68;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -236,6 +307,12 @@ function handleSelectCourse(course: WishCourse) {
     align-items: stretch;
   }
 
+  .wishing-well__add-wrap {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+  }
+
   .wishing-well__add-img {
     width: auto;
     height: 100%;
@@ -247,6 +324,13 @@ function handleSelectCourse(course: WishCourse) {
   .wishing-well__add-btn {
     min-width: 88px;
     max-width: 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wishing-well__add-hint {
+    animation: none;
+    opacity: 0.72;
   }
 }
 </style>
