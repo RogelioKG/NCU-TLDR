@@ -95,10 +95,13 @@ export interface WishCourse {
 /** 排序方向 */
 export type SortDirection = 'desc' | 'asc'
 
+/** 可排序欄位（評分 key 或綜合平均） */
+export type SortableRatingField = keyof CourseRatings | 'overall'
+
 /** 單一排序條件 */
 export interface SortCriterion {
-  /** 排序欄位（對應 CourseRatings 的 key） */
-  field: keyof CourseRatings
+  /** 排序欄位（CourseRatings 的 key 或 'overall' 綜合平均） */
+  field: SortableRatingField
   /** 顯示名稱 */
   label: string
   /** 排序方向 */
