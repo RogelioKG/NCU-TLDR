@@ -15,9 +15,10 @@ const router = useRouter()
 const courses = ref<Course[]>([...mockCourses])
 const searchQuery = ref('')
 
-// --- 排序 ---
+// --- 排序（初始無任何條件，預設依課程 id 排序）---
 const sortCriteria = ref<SortCriterion[]>([
-  { field: 'reward', label: '收穫', direction: 'desc', enabled: true },
+  { field: 'overall', label: '綜合平均', direction: 'desc', enabled: false },
+  { field: 'reward', label: '收穫', direction: 'desc', enabled: false },
   { field: 'score', label: '分數', direction: 'desc', enabled: false },
   { field: 'easiness', label: '輕鬆', direction: 'desc', enabled: false },
   { field: 'teacherStyle', label: '教師風格', direction: 'desc', enabled: false },
@@ -27,16 +28,23 @@ const sortCriteria = ref<SortCriterion[]>([
 const pageSize = ref(20)
 const currentPage = ref(1)
 
-// 排序後的課程
+// 排序後的課程（無條件時依課程 id 排序）
 const sortedCourses = computed(() => {
   const activeCriteria = sortCriteria.value.filter(c => c.enabled)
   if (activeCriteria.length === 0)
-    return courses.value
+    return [...courses.value].sort((a, b) => a.id - b.id)
 
+  function sortValue(course: Course, field: SortCriterion['field']): number {
+    if (field === 'overall') {
+      const r = course.ratings
+      return (r.reward + r.score + r.easiness + r.teacherStyle) / 4
+    }
+    return course.ratings[field]
+  }
   return [...courses.value].sort((a, b) => {
     for (const criterion of activeCriteria) {
-      const valA = a.ratings[criterion.field]
-      const valB = b.ratings[criterion.field]
+      const valA = sortValue(a, criterion.field)
+      const valB = sortValue(b, criterion.field)
       if (valA !== valB) {
         return criterion.direction === 'desc' ? valB - valA : valA - valB
       }
