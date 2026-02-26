@@ -81,7 +81,7 @@ function handleSubmitWish(payload: { name: string, teacher: string }) {
               alt="許願池"
               class="wishing-well__add-img"
             >
-            <span class="wishing-well__add-hint">點此許願</span>
+            <span class="wishing-well__add-hint">點此向課程女神許願</span>
           </span>
         </button>
       </div>
