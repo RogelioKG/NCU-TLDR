@@ -58,6 +58,10 @@ NCU-TLDR/
 │   └── vite.config.ts        # Vite 設定檔
 ├── docs/                     # 專案文件
 │   └── database-design.md    # 資料庫設計文件
+├── docker-compose.yml        # Docker 共用服務定義
+├── docker-compose.dev.yml    # Docker 開發環境覆寫
+├── docker-compose.prod.yml   # Docker 生產環境覆寫
+├── .dockerignore             # Docker build context 忽略規則
 ├── pnpm-workspace.yaml       # Monorepo Workspace 設定
 └── README.md                 # 專案說明文件
 ```
@@ -69,6 +73,7 @@ NCU-TLDR/
 - **Node.js**: v20+
 - **pnpm**: v9+
 - **Python**: v3.12+ (後端開發用)
+- **Docker Desktop**: 最新穩定版 (含 `docker compose`)
 
 ### 安裝步驟
 
@@ -89,6 +94,48 @@ NCU-TLDR/
    pnpm run dev
    ```
    瀏覽器將自動開啟 `http://localhost:5173`。
+
+## 🐳 Docker 開發須知
+
+### 檔案分工
+
+- `docker-compose.yml`：共用基礎服務（`db`、`backend`、`frontend`）
+- `docker-compose.dev.yml`：開發模式（volume mount + hot reload）
+- `docker-compose.prod.yml`：生產模式（production target + nginx）
+- `backend/Dockerfile`：Python 開發/生產 multi-stage image
+- `frontend/Dockerfile`：Vite 開發 + nginx 生產 multi-stage image
+- `frontend/nginx.conf`：SPA fallback 與 `/api/` 反向代理
+
+### 開發環境啟動
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
+
+### 生產模式啟動（本機模擬）
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+```
+
+- Frontend (nginx): `http://localhost`
+- Backend: `http://localhost:8000`
+
+### Alembic Migration
+
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+### 注意事項
+
+- Docker 內部 DB 連線 host 必須用 service name `db`，不可用 `localhost`。
+- PostgreSQL 使用 named volume `pgdata` 持久化資料。
+- 目前 `backend/main.py` 尚未建立 FastAPI `app` 物件，直接啟動 `uvicorn main:app` 會失敗；需先完成後端入口實作。
 
 ### 測試
 

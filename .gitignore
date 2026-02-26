@@ -16,6 +16,7 @@ env/
 # IDE
 .agents/
 .vscode/
+.cursor/
 .idea/
 *.swp
 *.swo
@@ -30,6 +31,16 @@ frontend/.vite/
 .env
 .env.local
 .env.*.local
+backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Docker
+docker-compose.override.yml
+.env.docker
+.env.docker.*
+postgres-data/
 
 # OS
 .DS_Store
