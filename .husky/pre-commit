@@ -23,13 +23,14 @@ if git diff --cached --name-only | grep -q "^backend/"; then
     uv run ruff check .
     uv run ruff format --check .
 
-    # 2. Check requirements.txt Consistency
+    # 2. Check requirements.txt Consistency (auto-fix to avoid shell encoding issues on Windows)
     if ! uv export --locked --no-hashes --no-annotate --format requirements.txt | diff -q requirements.txt - > /dev/null 2>&1; then
-        print_msg "$RED" "❌ [Backend] requirements.txt is out of sync!"
-        print_msg "$RED" "   -> Fix: cd backend && uv export --locked --no-hashes --no-annotate --format requirements.txt > requirements.txt"
-        exit 1
+        print_msg "$YELLOW" "⚠️  [Backend] requirements.txt is out of sync, auto-fixing..."
+        uv export --locked --no-hashes --no-annotate --format requirements.txt > requirements.txt
+        git add requirements.txt
+        print_msg "$GREEN" "✅ [Backend] requirements.txt updated and staged."
     fi
-
+    
     cd ..
 else
     print_msg "$YELLOW" "⏭️  [Backend] No changes detected, skipping..."
