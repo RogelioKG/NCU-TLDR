@@ -39,13 +39,22 @@ const hasAnyStars = computed(() =>
   form.reward > 0 || form.score > 0 || form.easiness > 0 || form.teacherStyle > 0,
 )
 
-const hasAnything = computed(() =>
-  form.semester !== ''
-  || hasAnyStars.value
+const hasAnyOptionalInput = computed(() =>
+  hasAnyStars.value
   || weeklyHoursTouched.value
   || form.textbook.trim().length > 0
   || form.comment.trim().length > 0,
 )
+
+const canSubmit = computed(() => form.semester !== '' && hasAnyOptionalInput.value)
+
+const submitButtonText = computed(() => {
+  if (form.semester === '')
+    return '請先選擇修課年份'
+  if (!hasAnyOptionalInput.value)
+    return '請至少再填寫一項'
+  return '送出評價'
+})
 
 const weeklyHoursLabel = computed(() => {
   if (!weeklyHoursTouched.value)
@@ -62,7 +71,7 @@ function handleSliderInput() {
 }
 
 function handleSubmit() {
-  if (!hasAnything.value)
+  if (!canSubmit.value)
     return
   submitted.value = true
 }
@@ -121,7 +130,7 @@ function handleOverlayClick(e: MouseEvent) {
                     修課年份
                     <span v-if="form.semester !== ''" class="review-toast__check">✓</span>
                   </legend>
-                  <select v-model="form.semester" class="review-toast__select" aria-label="修課年份">
+                  <select v-model="form.semester" class="review-toast__select" aria-label="修課年份" required>
                     <option value="">請選擇修課學期</option>
                     <option v-for="semester in semesterOptions" :key="semester" :value="semester">
                       {{ semester }}
@@ -199,10 +208,10 @@ function handleOverlayClick(e: MouseEvent) {
                 <button
                   type="submit"
                   class="review-toast__submit"
-                  :class="{ 'review-toast__submit--disabled': !hasAnything }"
-                  :disabled="!hasAnything"
+                  :class="{ 'review-toast__submit--disabled': !canSubmit }"
+                  :disabled="!canSubmit"
                 >
-                  {{ hasAnything ? '送出評價' : '請至少填寫一項' }}
+                  {{ submitButtonText }}
                 </button>
               </form>
             </Transition>
