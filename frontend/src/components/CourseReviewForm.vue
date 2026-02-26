@@ -11,6 +11,7 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({
+  semester: '',
   reward: 0,
   score: 0,
   easiness: 0,
@@ -22,13 +23,25 @@ const form = reactive({
 
 const weeklyHoursTouched = ref(false)
 const submitted = ref(false)
+const semesterOptions = computed(() => {
+  const startAcademicYear = 108
+  const currentRocYear = new Date().getFullYear() - 1911
+  const endAcademicYear = currentRocYear - 1
+  const options: string[] = []
+  for (let year = startAcademicYear; year <= endAcademicYear; year++) {
+    options.push(`${year}-1`)
+    options.push(`${year}-2`)
+  }
+  return options
+})
 
 const hasAnyStars = computed(() =>
   form.reward > 0 || form.score > 0 || form.easiness > 0 || form.teacherStyle > 0,
 )
 
 const hasAnything = computed(() =>
-  hasAnyStars.value
+  form.semester !== ''
+  || hasAnyStars.value
   || weeklyHoursTouched.value
   || form.textbook.trim().length > 0
   || form.comment.trim().length > 0,
@@ -103,6 +116,19 @@ function handleOverlayClick(e: MouseEvent) {
               </div>
 
               <form v-else key="form" class="review-toast__form" @submit.prevent="handleSubmit">
+                <fieldset class="review-toast__section" :class="{ 'review-toast__section--filled': form.semester !== '' }">
+                  <legend class="review-toast__legend">
+                    修課年份
+                    <span v-if="form.semester !== ''" class="review-toast__check">✓</span>
+                  </legend>
+                  <select v-model="form.semester" class="review-toast__select" aria-label="修課年份">
+                    <option value="">請選擇修課學期</option>
+                    <option v-for="semester in semesterOptions" :key="semester" :value="semester">
+                      {{ semester }}
+                    </option>
+                  </select>
+                </fieldset>
+
                 <!-- Star ratings -->
                 <fieldset class="review-toast__section" :class="{ 'review-toast__section--filled': hasAnyStars }">
                   <legend class="review-toast__legend">
@@ -381,6 +407,22 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .review-toast__input:focus {
+  box-shadow: 0 0 0 2px var(--color-accent-primary);
+}
+
+.review-toast__select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-background-alt);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  border: none;
+  outline: none;
+  transition: box-shadow var(--transition-fast);
+}
+
+.review-toast__select:focus {
   box-shadow: 0 0 0 2px var(--color-accent-primary);
 }
 

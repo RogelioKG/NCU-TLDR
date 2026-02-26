@@ -133,6 +133,7 @@ function onPageSizeChange(event: Event) {
       <span class="cfs__trigger-icon" aria-hidden="true">⠿</span>
       <span class="cfs__trigger-label">排序</span>
     </button>
+    <slot />
     <div class="cfs__page-size-section">
       <label class="cfs__label" for="cfsPageSize">每頁</label>
       <select

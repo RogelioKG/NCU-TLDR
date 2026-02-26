@@ -5,13 +5,15 @@ import { useRouter } from 'vue-router'
 import CourseFilterSort from '@/components/CourseFilterSort.vue'
 import CourseGrid from '@/components/CourseGrid.vue'
 import CoursePagination from '@/components/CoursePagination.vue'
+import SavedCoursesPanel from '@/components/SavedCoursesPanel.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import WishingWell from '@/components/WishingWell.vue'
+import { useSavedCourses } from '@/composables/useSavedCourses'
 import { mockCourses } from '@/mock/courses'
 
 const router = useRouter()
+const { savedCourses: orderedSavedCourses, savedCourseIds } = useSavedCourses()
 
-// 課程資料（來自 mock，未來可改為 store / API）
 const courses = ref<Course[]>([...mockCourses])
 const searchQuery = ref('')
 
@@ -28,11 +30,15 @@ const sortCriteria = ref<SortCriterion[]>([
 const pageSize = ref(20)
 const currentPage = ref(1)
 
-// 排序後的課程（無條件時依課程 id 排序）
 const sortedCourses = computed(() => {
+  const ids = savedCourseIds.value
+  const saved = orderedSavedCourses.value.filter(c =>
+    courses.value.some(mc => mc.id === c.id),
+  )
+
+  const unsaved = [...courses.value].filter(c => !ids.has(c.id))
+
   const activeCriteria = sortCriteria.value.filter(c => c.enabled)
-  if (activeCriteria.length === 0)
-    return [...courses.value].sort((a, b) => a.id - b.id)
 
   function sortValue(course: Course, field: SortCriterion['field']): number {
     if (field === 'overall') {
@@ -41,16 +47,24 @@ const sortedCourses = computed(() => {
     }
     return course.ratings[field]
   }
-  return [...courses.value].sort((a, b) => {
-    for (const criterion of activeCriteria) {
-      const valA = sortValue(a, criterion.field)
-      const valB = sortValue(b, criterion.field)
-      if (valA !== valB) {
-        return criterion.direction === 'desc' ? valB - valA : valA - valB
+
+  if (activeCriteria.length > 0) {
+    const compareFn = (a: Course, b: Course) => {
+      for (const criterion of activeCriteria) {
+        const valA = sortValue(a, criterion.field)
+        const valB = sortValue(b, criterion.field)
+        if (valA !== valB)
+          return criterion.direction === 'desc' ? valB - valA : valA - valB
       }
+      return 0
     }
-    return 0
-  })
+    unsaved.sort(compareFn)
+  }
+  else {
+    unsaved.sort((a, b) => a.id - b.id)
+  }
+
+  return [...saved, ...unsaved]
 })
 
 // 總頁數
@@ -104,7 +118,9 @@ function handleWishCourseSelect(course: WishCourse) {
         :page-size="pageSize"
         @update:sort-criteria="sortCriteria = $event"
         @update:page-size="pageSize = $event"
-      />
+      >
+        <SavedCoursesPanel />
+      </CourseFilterSort>
 
       <!-- 課程網格 -->
       <section class="main__grid-section">

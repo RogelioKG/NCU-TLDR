@@ -2,6 +2,7 @@
 import type { Course } from '@/types'
 // CourseCard 元件 - 課程卡片（內容同 CourseDetail，右上角保留平均星星）
 import { computed, ref } from 'vue'
+import { useSavedCourses } from '@/composables/useSavedCourses'
 import StarRating from './StarRating.vue'
 
 const props = defineProps<Props>()
@@ -10,7 +11,6 @@ const emit = defineEmits<{
   select: [course: Course]
 }>()
 
-// 常數定義
 const COURSE_NAME_MAX_LENGTH = 7
 
 interface Props {
@@ -18,6 +18,14 @@ interface Props {
 }
 
 const isHovered = ref(false)
+
+const { isSaved, toggleSave } = useSavedCourses()
+const saved = computed(() => isSaved(props.course.id))
+
+function handleToggleSave(e: Event) {
+  e.stopPropagation()
+  toggleSave(props.course.id)
+}
 
 const averageRating = computed(() => {
   const { reward, score, easiness, teacherStyle } = props.course.ratings
@@ -46,6 +54,15 @@ function handleClick() {
   >
     <div class="course-card__body">
       <div class="course-card__rating-row">
+        <button
+          type="button"
+          class="course-card__save-btn"
+          :class="{ 'course-card__save-btn--active': saved }"
+          :title="saved ? '從清單移除' : '儲存至清單'"
+          @click="handleToggleSave"
+        >
+          {{ saved ? '⚑' : '⚐' }}
+        </button>
         <span class="course-card__rating">{{ averageRating }} ⭐</span>
       </div>
       <header class="course-card__header">
@@ -130,8 +147,34 @@ function handleClick() {
 
 .course-card__rating-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: var(--spacing-xs);
+}
+
+.course-card__save-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-card__save-btn:hover {
+  color: var(--color-accent-primary);
+  background: rgba(127, 169, 184, 0.1);
+}
+
+.course-card__save-btn--active {
+  color: var(--color-accent-primary);
 }
 
 .course-card__rating {

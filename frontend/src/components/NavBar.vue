@@ -41,6 +41,8 @@ onUnmounted(() => {
         </RouterLink>
         <a href="#" class="navbar__link" aria-label="我的評價" @click.prevent>我的評價</a>
         <a href="#" class="navbar__link" aria-label="我的等級" @click.prevent>我的等級</a>
+        <a href="#" class="navbar__link" aria-label="我的寵物" @click.prevent>我的寵物</a>
+        <a href="#" class="navbar__link" aria-label="商城" @click.prevent>商城</a>
         <a href="#" class="navbar__link" aria-label="關於我們" @click.prevent>關於我們</a>
       </div>
       <div class="navbar__actions">
