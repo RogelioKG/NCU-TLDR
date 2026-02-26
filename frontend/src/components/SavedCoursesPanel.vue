@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
       aria-controls="saved-panel"
       @click="toggle"
     >
-      <span class="scp__trigger-icon" aria-hidden="true">★</span>
+      <span class="scp__trigger-icon" aria-hidden="true">⚑</span>
       <span class="scp__trigger-label">
         已儲存
       </span>
@@ -68,7 +68,7 @@ onBeforeUnmount(() => {
     >
       <header class="scp__popover-header">
         <div class="scp__popover-title">
-          <span class="scp__trigger-icon" aria-hidden="true">★</span>
+          <span class="scp__trigger-icon" aria-hidden="true">⚑</span>
           <span>已儲存課程</span>
         </div>
         <button type="button" class="scp__close-btn" aria-label="關閉面板" @click="close">

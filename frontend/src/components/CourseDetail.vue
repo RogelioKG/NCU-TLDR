@@ -44,7 +44,7 @@ function handleSearch(_query: string) {
             :title="saved ? '從清單移除' : '儲存至清單'"
             @click="handleToggleSave"
           >
-            <span class="cdp__save-icon">{{ saved ? '★' : '☆' }}</span>
+            <span class="cdp__save-icon">{{ saved ? '⚑' : '⚐' }}</span>
             <span class="cdp__save-label">
               {{ saved ? '已儲存' : '儲存至清單' }}
             </span>
