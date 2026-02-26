@@ -1,6 +1,8 @@
-def main():
-    print("Hello from NCU-TLDR!")
+from fastapi import FastAPI
+
+app = FastAPI(title="NCU-TLDR Backend")
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
