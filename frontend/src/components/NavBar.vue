@@ -46,12 +46,12 @@ onUnmounted(() => {
         <a href="#" class="navbar__link" aria-label="關於我們" @click.prevent>關於我們</a>
       </div>
       <div class="navbar__actions">
-        <button class="navbar__btn navbar__btn--ghost">
+        <RouterLink to="/login" class="navbar__btn navbar__btn--ghost">
           登入
-        </button>
-        <button class="navbar__btn navbar__btn--primary">
+        </RouterLink>
+        <RouterLink to="/register" class="navbar__btn navbar__btn--primary">
           註冊
-        </button>
+        </RouterLink>
       </div>
     </div>
   </nav>
