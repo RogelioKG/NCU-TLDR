@@ -55,7 +55,6 @@ erDiagram
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | `UUID` | `PK DEFAULT gen_random_uuid()` | 用戶唯一識別碼 |
-| `portal_identifier` | `VARCHAR(100)` | `UNIQUE` | NCU Portal OAuth 帳號（SSO 綁定） |
 | `email` | `VARCHAR(255)` | `NOT NULL UNIQUE` | 電子郵件 |
 | `password_hash` | `VARCHAR(255)` | | 密碼雜湊（OAuth 用戶可 NULL） |
 | `display_name` | `VARCHAR(100)` | `NOT NULL` | 顯示名稱 |
@@ -71,7 +70,6 @@ erDiagram
 ```sql
 CREATE TABLE IF NOT EXISTS users (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    portal_identifier   VARCHAR(100) UNIQUE,
     email               VARCHAR(255) NOT NULL UNIQUE,
     password_hash       VARCHAR(255),
     display_name        VARCHAR(100) NOT NULL,
@@ -481,7 +479,6 @@ CREATE TABLE IF NOT EXISTS wish_votes (
 ```sql
 -- === users ===
 -- email UNIQUE → 自動 unique index
--- portal_identifier UNIQUE → 自動 unique index
 
 -- === departments ===
 -- name UNIQUE → 自動 unique index
@@ -657,7 +654,6 @@ wishes
 -- 1. users
 CREATE TABLE IF NOT EXISTS users (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    portal_identifier   VARCHAR(100) UNIQUE,
     email               VARCHAR(255) NOT NULL UNIQUE,
     password_hash       VARCHAR(255),
     display_name        VARCHAR(100) NOT NULL,
