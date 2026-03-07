@@ -8,7 +8,7 @@ export const useWishStore = defineStore('wish', () => {
   const isLoading = ref(false)
 
   const sortedWishes = computed(() =>
-    [...wishes.value].sort((a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0)),
+    wishes.value.toSorted((a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0)),
   )
 
   async function fetchWishlist(): Promise<void> {

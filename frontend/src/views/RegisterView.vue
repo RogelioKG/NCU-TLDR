@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 
+const studentIdRegex = /^\d{9}@cc\.ncu\.edu\.tw$/
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/
+
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -20,7 +23,6 @@ async function handleSubmit() {
   }
 
   // Validate student email format (9 digits student ID)
-  const studentIdRegex = /^\d{9}@cc\.ncu\.edu\.tw$/
   if (!studentIdRegex.test(email.value)) {
     errorMsg.value = '請使用正確的學校信箱（9 碼學號 @cc.ncu.edu.tw）'
     return
@@ -32,7 +34,6 @@ async function handleSubmit() {
   }
 
   // Password complexity: at least one special char, one uppercase, one lowercase, one number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/
   if (!passwordRegex.test(password.value)) {
     errorMsg.value = '密碼需包含至少一個特殊符號、一個大寫字母、一個小寫字母及一個數字'
     return

@@ -83,7 +83,7 @@ export async function getMe(token: string): Promise<AuthUser> {
   if (hasBackendApi()) {
     return await request<AuthUser>('/api/auth/me', { token })
   }
-  const email = Array.from(mockUsers.keys())[0]
+  const email = [...mockUsers.keys()][0]
   const row = mockUsers.get(email)!
   return {
     id: row.id,

@@ -22,19 +22,19 @@ const canSubmit = computed(() =>
   form.name.trim().length > 0 && form.teacher.trim().length > 0,
 )
 
-const allCourseNames = Array.from(
-  new Set([
+const allCourseNames = [
+  ...new Set([
     ...mockCourses.map(course => course.name.trim()),
     ...mockWishList.map(wish => wish.name.trim()),
   ]),
-).filter(name => name.length > 0)
+].filter(name => name.length > 0)
 
-const allTeachers = Array.from(
-  new Set([
+const allTeachers = [
+  ...new Set([
     ...mockCourses.map(course => course.teacher.trim()),
     ...mockWishList.map(wish => wish.teacher.trim()),
   ]),
-).filter(teacher => teacher.length > 0)
+].filter(teacher => teacher.length > 0)
 
 const filteredCourseNames = computed(() => {
   const keyword = form.name.trim().toLocaleLowerCase()
