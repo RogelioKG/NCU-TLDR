@@ -39,6 +39,9 @@ export const mockCourses: Course[] = [
       { id: 1, user: 'User1', title: '老師教得很好。', content: '老師總, 老師教得很好，作業有點多，但學到很多！', date: '2023/10/20', likes: 12, dislikes: 1 },
       { id: 2, user: 'User2', title: '考試很幾，要認真準備。', content: '期中考範圍很廣，要提早開始複習，建議把作業都弄懂。', date: '2023/10/22', likes: 8, dislikes: 0 },
       { id: 3, user: 'User3', title: '分組報告很重要', content: '找到好組員很關鍵，報告佔比不少，老師對報告品質要求高。', date: '2023/11/05', likes: 5, dislikes: 2 },
+      { id: 4, user: 'User4', title: '回覆 User1', content: '同意，作業真的很多但很有收穫。', date: '2023/10/21', likes: 2, dislikes: 0, parentId: 1 },
+      { id: 5, user: 'User5', title: '回覆 User3', content: '組員真的很重要，建議開學就找好。', date: '2023/11/06', likes: 1, dislikes: 0, parentId: 3 },
+      { id: 6, user: 'User6', title: '回覆 User3', content: '報告佔 40% 要提早準備。', date: '2023/11/07', likes: 0, dislikes: 0, parentId: 3 },
     ],
   },
   {

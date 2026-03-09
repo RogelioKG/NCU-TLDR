@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { hasBackendApi } from '@/api/client'
 import CourseDetail from '@/components/CourseDetail.vue'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useCommentStore } from '@/stores/useCommentStore'
 import { useCourseStore } from '@/stores/useCourseStore'
 import { useReviewStore } from '@/stores/useReviewStore'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const commentStore = useCommentStore()
 const courseStore = useCourseStore()
 const reviewStore = useReviewStore()
 
@@ -19,23 +22,43 @@ const courseId = computed(() => {
 const course = computed(() => {
   const selected = courseStore.selectedCourse
   if (selected && selected.id === courseId.value) {
-    const reviews = reviewStore.getCourseReviews(selected.id)
+    const comments = hasBackendApi()
+      ? commentStore.getCourseComments(selected.id)
+      : (reviewStore.getCourseReviews(selected.id).length > 0
+          ? reviewStore.getCourseReviews(selected.id)
+          : selected.comments ?? [])
     return {
       ...selected,
-      comments: reviews.length > 0 ? reviews : selected.comments,
+      comments,
     }
   }
   return null
 })
 
 async function loadData() {
-  if (Number.isNaN(courseId.value)) {
+  if (Number.isNaN(courseId.value))
     return
+  await courseStore.fetchCourseById(courseId.value)
+  if (hasBackendApi())
+    await commentStore.fetchComments(courseId.value)
+  else
+    await reviewStore.fetchReviews(courseId.value)
+}
+
+async function handleReply(payload: { parentId: number, content: string }) {
+  if (Number.isNaN(courseId.value))
+    return
+  if (hasBackendApi()) {
+    await commentStore.addReply(courseId.value, payload.parentId, payload.content)
   }
-  await Promise.all([
-    courseStore.fetchCourseById(courseId.value),
-    reviewStore.fetchReviews(courseId.value),
-  ])
+  else {
+    reviewStore.addReply(
+      courseId.value,
+      payload.parentId,
+      payload.content,
+      authStore.displayName ?? undefined,
+    )
+  }
 }
 
 async function handleSubmitReview(payload: {
@@ -81,7 +104,11 @@ onMounted(async () => {
 <template>
   <div class="course-detail-view">
     <div v-if="course">
-      <CourseDetail :course="course" @submit-review="handleSubmitReview" />
+      <CourseDetail
+        :course="course"
+        @reply="handleReply"
+        @submit-review="handleSubmitReview"
+      />
     </div>
     <div v-else class="not-found">
       <p>找不到該課程資訊。</p>

@@ -12,6 +12,7 @@ const props = defineProps<{
   course: Course
 }>()
 const emit = defineEmits<{
+  reply: [{ parentId: number, content: string }]
   submitReview: [
     payload: {
       title: string
@@ -39,6 +40,10 @@ function handleToggleSave() {
 
 function handleSearch(_query: string) {
   // Search functionality can be implemented here
+}
+
+function handleReply(payload: { parentId: number, content: string }) {
+  emit('reply', payload)
 }
 
 function handleSubmitReview(payload: {
@@ -111,7 +116,10 @@ function handleSubmitReview(payload: {
             :course-name="course.name"
             @submit-review="handleSubmitReview"
           />
-          <CourseComments :comments="course.comments ?? []" />
+          <CourseComments
+            :comments="course.comments ?? []"
+            @reply="handleReply"
+          />
         </div>
       </div>
     </main>

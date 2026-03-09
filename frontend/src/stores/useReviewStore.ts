@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { createReview, getReviews } from '@/api/reviews'
 
+const DATE_DASH_REGEX = /-/g
+
 export const useReviewStore = defineStore('review', () => {
   const reviewsByCourse = ref<Record<number, CourseComment[]>>({})
   const isLoading = ref(false)
@@ -56,7 +58,33 @@ export const useReviewStore = defineStore('review', () => {
     return reviewsByCourse.value[courseId] ?? []
   }
 
+  function addReply(
+    courseId: number,
+    parentId: number,
+    content: string,
+    user?: string,
+  ): CourseComment {
+    const current = reviewsByCourse.value[courseId] ?? []
+    const nextId = current.reduce((max, c) => Math.max(max, c.id), 0) + 1
+    const created: CourseComment = {
+      id: nextId,
+      user: user ?? '匿名同學',
+      title: content.slice(0, 50),
+      content,
+      date: new Date().toISOString().slice(0, 10).replace(DATE_DASH_REGEX, '/'),
+      likes: 0,
+      dislikes: 0,
+      parentId,
+    }
+    reviewsByCourse.value = {
+      ...reviewsByCourse.value,
+      [courseId]: [...current, created],
+    }
+    return created
+  }
+
   return {
+    addReply,
     fetchReviews,
     getCourseReviews,
     isLoading,
