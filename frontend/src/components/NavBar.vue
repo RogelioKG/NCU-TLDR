@@ -2,7 +2,10 @@
 // NavBar 元件 - 磨砂玻璃效果導航列
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { getDataSourceLabel } from '@/api/client'
 import { useAuthStore } from '@/stores/useAuthStore'
+
+const isDev = import.meta.env.DEV
 
 const SCROLL_THRESHOLD_PX = 20
 
@@ -66,10 +69,19 @@ function closeMenu() {
       >
         <span class="navbar__menu-icon" />
       </button>
-      <RouterLink to="/" class="navbar__brand" @click="closeMenu">
-        <img src="/logo.png" alt="NCU TLDR Logo" class="navbar__logo" width="33" height="38">
-        <span class="navbar__title">NCU TLDR</span>
-      </RouterLink>
+      <div class="navbar__brand-wrap">
+        <RouterLink to="/" class="navbar__brand" @click="closeMenu">
+          <img src="/logo.png" alt="NCU TLDR Logo" class="navbar__logo" width="33" height="38">
+          <span class="navbar__title">NCU TLDR</span>
+        </RouterLink>
+        <span
+          v-if="isDev"
+          class="navbar__data-source"
+          :title="`資料來源：${getDataSourceLabel() === 'API' ? '後端 API / DB' : '前端 Mock'}`"
+        >
+          資料: {{ getDataSourceLabel() }}
+        </span>
+      </div>
       <div class="navbar__links" role="navigation" aria-label="主要導覽">
         <RouterLink
           v-for="item in navItems"
@@ -164,11 +176,28 @@ function closeMenu() {
   justify-content: space-between;
 }
 
+.navbar__brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .navbar__brand {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  text-decoration: none; /* Remove underline from link */
+  text-decoration: none;
+}
+
+.navbar__data-source {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-background-alt);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .navbar__logo {

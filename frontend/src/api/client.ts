@@ -1,3 +1,4 @@
+/** 由 frontend/.env 或 .env.local 設定 VITE_API_BASE_URL，見 .env.example */
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || ''
 
 interface RequestOptions extends RequestInit {
@@ -16,6 +17,11 @@ export class ApiError extends Error {
 
 export function hasBackendApi(): boolean {
   return API_BASE_URL.length > 0
+}
+
+/** 開發用：目前資料來源為 Mock 或 API（DB），便於辨識。 */
+export function getDataSourceLabel(): 'Mock' | 'API' {
+  return hasBackendApi() ? 'API' : 'Mock'
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {

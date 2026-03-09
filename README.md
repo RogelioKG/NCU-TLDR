@@ -95,6 +95,13 @@ NCU-TLDR/
    ```
    瀏覽器將自動開啟 `http://localhost:5173`。
 
+4. **（選用）接後端 API**  
+   要讓前端打真實後端與 DB，在 `frontend` 目錄新增 `.env` 或 `.env.local`，設定：
+   ```bash
+   VITE_API_BASE_URL=http://localhost:8000
+   ```
+   可參考 `frontend/.env.example`。未設定時前端使用 Mock 資料，導航列會顯示「資料: Mock」。
+
 ## 🐳 Docker 開發（後端建置）
 
 目前以**單一開發流程**為主，不區分 dev/prod compose。後端為單一 stage 建置，volume mount 支援 hot reload。
