@@ -7,11 +7,7 @@ export interface SavedCourseEntry {
   order: number
 }
 
-const savedEntries = ref<SavedCourseEntry[]>([
-  { courseId: 1, order: 0 },
-  { courseId: 3, order: 1 },
-  { courseId: 5, order: 2 },
-])
+const savedEntries = ref<SavedCourseEntry[]>([])
 
 export function useSavedCourses() {
   const savedCourses = computed<Course[]>(() => {
