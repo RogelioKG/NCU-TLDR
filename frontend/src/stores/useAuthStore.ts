@@ -5,7 +5,7 @@ import { getMe, login, register } from '@/api/auth'
 const AUTH_TOKEN_KEY = 'ncu-tldr-token'
 
 interface AuthUser {
-  id: number
+  id: string
   email: string
   displayName: string
   isActive: boolean

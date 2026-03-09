@@ -20,7 +20,7 @@ describe('useAuthStore', () => {
       accessToken: 'mock-token',
       tokenType: 'bearer',
       user: {
-        id: 1,
+        id: '1',
         email: 'demo@cc.ncu.edu.tw',
         displayName: 'Demo',
         isActive: true,
