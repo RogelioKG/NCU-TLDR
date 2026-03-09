@@ -103,7 +103,7 @@ export interface Course {
   /** 開課學期 (Optional for mock) */
   semester?: string
   /** 系所/單位 (Optional for mock) */
-  schoolDept?: string
+  department?: string
   /** 課號 (Optional for mock) */
   code?: string
   /** 上課時間 (Optional for mock) */

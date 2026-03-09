@@ -26,7 +26,7 @@ class Course(BaseModel):
     teacher: str
     tags: list[str]
     ratings: CourseRatings
-    schoolDept: str | None = None
+    department: str | None = None
     code: str | None = None
     time: str | None = None
     credits: int | None = None
