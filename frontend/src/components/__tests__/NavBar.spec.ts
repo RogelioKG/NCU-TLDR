@@ -26,7 +26,7 @@ describe('navBar', () => {
     const wrapper = mountNavBar()
     expect(wrapper.text()).toContain('首頁')
     expect(wrapper.text()).toContain('我的評價')
-    expect(wrapper.text()).toContain('我的等級')
+    expect(wrapper.text()).toContain('積分商城')
     expect(wrapper.text()).toContain('關於我們')
   })
 

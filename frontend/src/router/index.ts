@@ -33,7 +33,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/my-level',
     name: 'my-level',
-    component: () => import('../views/MyLevelView.vue'),
+    component: () => import('../views/PointsShopView.vue'),
   },
   {
     path: '/about',

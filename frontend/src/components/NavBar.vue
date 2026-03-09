@@ -14,7 +14,7 @@ const route = useRoute()
 const navItems = computed(() => [
   { name: 'home', label: '首頁' },
   { name: 'my-reviews', label: '我的評價' },
-  { name: 'my-level', label: '我的等級' },
+  { name: 'my-level', label: '積分商城' },
   { name: 'about', label: '關於我們' },
 ])
 
