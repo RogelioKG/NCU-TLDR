@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
-import { mockCourses } from '@/mock/courses'
-import { mockWishList } from '@/mock/wishList'
+import { computed, onMounted, reactive } from 'vue'
+import { useCoursePairsStore } from '@/stores/useCoursePairsStore'
 
 interface WishFormPayload {
   name: string
@@ -13,45 +12,49 @@ const emit = defineEmits<{
   submit: [payload: WishFormPayload]
 }>()
 
+const pairsStore = useCoursePairsStore()
+
 const form = reactive<WishFormPayload>({
   name: '',
   teacher: '',
 })
 
-const canSubmit = computed(() =>
-  form.name.trim().length > 0 && form.teacher.trim().length > 0,
-)
-
-const allCourseNames = [
-  ...new Set([
-    ...mockCourses.map(course => course.name.trim()),
-    ...mockWishList.map(wish => wish.name.trim()),
-  ]),
-].filter(name => name.length > 0)
-
-const allTeachers = [
-  ...new Set([
-    ...mockCourses.map(course => course.teacher.trim()),
-    ...mockWishList.map(wish => wish.teacher.trim()),
-  ]),
-].filter(teacher => teacher.length > 0)
+onMounted(async () => {
+  await pairsStore.fetchPairs()
+})
 
 const filteredCourseNames = computed(() => {
-  const keyword = form.name.trim().toLocaleLowerCase()
+  const teacher = form.teacher.trim()
+  if (teacher) {
+    return pairsStore.getCourseNamesByTeacher(teacher).slice(0, 12)
+  }
+  const keyword = form.name.trim().toLowerCase()
   if (!keyword)
-    return allCourseNames.slice(0, 12)
-  return allCourseNames
-    .filter(name => name.toLocaleLowerCase().includes(keyword))
+    return pairsStore.getCourseNamesByTeacher('').slice(0, 12)
+  return pairsStore
+    .getCourseNamesByTeacher('')
+    .filter(n => n.toLowerCase().includes(keyword))
     .slice(0, 12)
 })
 
 const filteredTeachers = computed(() => {
-  const keyword = form.teacher.trim().toLocaleLowerCase()
+  const name = form.name.trim()
+  if (name) {
+    return pairsStore.getTeachersByCourseName(name).slice(0, 12)
+  }
+  const keyword = form.teacher.trim().toLowerCase()
   if (!keyword)
-    return allTeachers.slice(0, 12)
-  return allTeachers
-    .filter(teacher => teacher.toLocaleLowerCase().includes(keyword))
+    return pairsStore.getTeachersByCourseName('').slice(0, 12)
+  return pairsStore
+    .getTeachersByCourseName('')
+    .filter(t => t.toLowerCase().includes(keyword))
     .slice(0, 12)
+})
+
+const canSubmit = computed(() => {
+  const name = form.name.trim()
+  const teacher = form.teacher.trim()
+  return name.length > 0 && teacher.length > 0 && pairsStore.isValidPair(name, teacher)
 })
 
 function handleOverlayClick(event: MouseEvent) {
@@ -93,7 +96,9 @@ function handleSubmit() {
           </div>
 
           <form class="wish-toast__form" @submit.prevent="handleSubmit">
-            <label class="wish-toast__label" for="wish-course-name">許願課程名稱</label>
+            <label class="wish-toast__label" for="wish-course-name">
+              許願課程名稱
+            </label>
             <input
               id="wish-course-name"
               v-model="form.name"
@@ -110,7 +115,9 @@ function handleSubmit() {
               />
             </datalist>
 
-            <label class="wish-toast__label" for="wish-course-teacher">授課教師</label>
+            <label class="wish-toast__label" for="wish-course-teacher">
+              授課教師
+            </label>
             <input
               id="wish-course-teacher"
               v-model="form.teacher"
@@ -126,6 +133,10 @@ function handleSubmit() {
                 :value="teacher"
               />
             </datalist>
+
+            <p v-if="form.name.trim() && form.teacher.trim() && !canSubmit" class="wish-toast__hint">
+              此課程與教師的組合不存在
+            </p>
 
             <button
               type="submit"
@@ -228,6 +239,12 @@ function handleSubmit() {
 
 .wish-toast__input:focus {
   box-shadow: 0 0 0 2px var(--color-accent-primary);
+}
+
+.wish-toast__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger, #e53e3e);
+  margin: 0;
 }
 
 .wish-toast__submit {

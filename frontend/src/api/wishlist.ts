@@ -14,11 +14,12 @@ export async function getWishlist(): Promise<WishCourse[]> {
   return mockWishList.map(row => ({ ...row, voteCount: 1 }))
 }
 
-export async function addWish(payload: AddWishPayload): Promise<WishCourse> {
+export async function addWish(payload: AddWishPayload, token?: string): Promise<WishCourse> {
   if (hasBackendApi()) {
     return await request<WishCourse>('/api/wishlist', {
       method: 'POST',
       body: JSON.stringify(payload),
+      token,
     })
   }
   const existing = mockWishList.find(row => row.name === payload.name && row.teacher === payload.teacher)
@@ -34,8 +35,8 @@ export async function addWish(payload: AddWishPayload): Promise<WishCourse> {
   }
 }
 
-export async function removeWish(wishId: number): Promise<void> {
+export async function removeWish(wishId: number, token?: string): Promise<void> {
   if (hasBackendApi()) {
-    await request<void>(`/api/wishlist/${wishId}`, { method: 'DELETE' })
+    await request<void>(`/api/wishlist/${wishId}`, { method: 'DELETE', token })
   }
 }

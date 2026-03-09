@@ -1,7 +1,8 @@
 import type { WishCourse } from '@/types'
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { addWish, getWishlist, removeWish } from '@/api/wishlist'
+import { useAuthStore } from './useAuthStore'
 
 export const useWishStore = defineStore('wish', () => {
   const wishes = ref<WishCourse[]>([])
@@ -22,7 +23,8 @@ export const useWishStore = defineStore('wish', () => {
   }
 
   async function createWish(payload: { name: string, teacher: string }): Promise<void> {
-    const saved = await addWish(payload)
+    const { token } = storeToRefs(useAuthStore())
+    const saved = await addWish(payload, token.value ?? undefined)
     const target = wishes.value.find(row => row.id === saved.id)
     if (!target) {
       wishes.value = [...wishes.value, saved]
@@ -32,7 +34,8 @@ export const useWishStore = defineStore('wish', () => {
   }
 
   async function deleteWish(wishId: number): Promise<void> {
-    await removeWish(wishId)
+    const { token } = storeToRefs(useAuthStore())
+    await removeWish(wishId, token.value ?? undefined)
     wishes.value = wishes.value.filter(row => row.id !== wishId)
   }
 
