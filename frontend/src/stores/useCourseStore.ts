@@ -53,7 +53,9 @@ export const useCourseStore = defineStore('course', () => {
   async function fetchCourses(): Promise<void> {
     isLoading.value = true
     try {
-      courses.value = await getCourses({ q: searchQuery.value })
+      const active = sortCriteria.value.find(c => c.enabled)
+      const sort = active ? `${active.field}:${active.direction}` : undefined
+      courses.value = await getCourses({ q: searchQuery.value, sort })
     }
     finally {
       isLoading.value = false
