@@ -21,7 +21,7 @@ const navItems = computed(() => [
   { name: 'about', label: '關於我們' },
 ])
 
-watch(() => route.name, () => {
+watch(() => route?.name, () => {
   menuOpen.value = false
 })
 
@@ -135,7 +135,7 @@ function closeMenu() {
               :key="item.name"
               :to="{ name: item.name }"
               class="navbar__drawer-link"
-              :class="{ 'navbar__drawer-link--active': route.name === item.name }"
+              :class="{ 'navbar__drawer-link--active': route?.name === item.name }"
               @click="closeMenu"
             >
               {{ item.label }}
