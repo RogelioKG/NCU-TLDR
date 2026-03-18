@@ -1,6 +1,6 @@
 # 🎓 NCU-TLDR (中大課程評價平台)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Vue3](https://img.shields.io/badge/Frontend-Vue3-4fc08d?style=flat&logo=vue.js)
 ![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=flat&logo=vite)
 ![Python](https://img.shields.io/badge/Backend-Python-3776AB?style=flat&logo=python)
@@ -168,4 +168,4 @@ pnpm test
 
 ## 📄 授權條款
 
-本專案採用 [MIT License](LICENSE) 授權。
+本專案採用 [AGPL-3.0 License](LICENSE) 授權。
