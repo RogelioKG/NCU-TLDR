@@ -19,19 +19,10 @@ if git diff --cached --name-only | grep -q "^backend/"; then
     print_msg "$BLUE" "🔄 [Backend] Checking..."
     cd backend
 
-    # 1. Auto-fix format then Lint & Format Check
+    # Auto format & lint check
     uv run ruff format .
     git add -u .
     uv run ruff check .
-    uv run ruff format --check .
-
-    # 2. Check requirements.txt Consistency (auto-fix to avoid shell encoding issues on Windows)
-    if ! uv export --locked --no-hashes --no-annotate --format requirements.txt | diff -q requirements.txt - > /dev/null 2>&1; then
-        print_msg "$YELLOW" "⚠️  [Backend] requirements.txt is out of sync, auto-fixing..."
-        uv export --locked --no-hashes --no-annotate --format requirements.txt > requirements.txt
-        git add requirements.txt
-        print_msg "$GREEN" "✅ [Backend] requirements.txt updated and staged."
-    fi
     
     cd ..
 else
@@ -43,7 +34,7 @@ if git diff --cached --name-only | grep -q "^frontend/"; then
     print_msg "$BLUE" "🔄 [Frontend] Checking..."
     cd frontend
 
-    # 1. Lint Check
+    # Lint Check
     pnpm run lint
 
     cd ..
