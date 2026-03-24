@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "version": "2.0.0",
+    "updatedAt": "2026-03-22T08:00:00.000Z"
+  },
+  "data": {
+    "semester": "114-2",
+    "colleges": [
+      {
+        "collegeId": "collegeI5",
+        "collegeName": "資訊電機學院"
+      }
+    ],
+    "departments": [
+      {
+        "departmentId": "deptI1I5002I0",
+        "departmentName": "資訊工程學系",
+        "collegeId": "collegeI5"
+      }
+    ],
+    "courses": [
+      {
+        "serialNo": 52001,
+        "classNo": "CE1002-*",
+        "title": "計算機概論 Ⅱ",
+        "credit": 3,
+        "passwordCard": "OPTIONAL",
+        "teachers": [
+          "王大明"
+        ],
+        "classTimes": [
+          "4-5",
+          "4-6",
+          "4-7"
+        ],
+        "limitCnt": 140,
+        "admitCnt": 128,
+        "waitCnt": 0,
+        "collegeIds": [
+          "collegeI5"
+        ],
+        "departmentIds": [
+          "deptI1I5002I0"
+        ],
+        "courseType": "REQUIRED"
+      }
+    ]
+  }
+}
