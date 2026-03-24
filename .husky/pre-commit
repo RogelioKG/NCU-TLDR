@@ -19,11 +19,28 @@ if git diff --cached --name-only | grep -q "^backend/"; then
     print_msg "$BLUE" "🔄 [Backend] Checking..."
     cd backend
 
-    # 1. Auto-fix format then Lint & Format Check
-    uv run ruff format .
-    git add -u .
-    uv run ruff check .
-    uv run ruff format --check .
+    # 1. Lint & Format Check
+    RUFF_FAILED=0
+
+    if ! uv run ruff check .; then
+        RUFF_FAILED=1
+        echo ""
+        print_msg "$YELLOW" "💡 [Backend] To auto-fix lint issues, run:"
+        print_msg "$NC" "    cd backend && uv run ruff check --fix . && cd .."
+    fi
+
+    if ! uv run ruff format --check .; then
+        RUFF_FAILED=1
+        echo ""
+        print_msg "$YELLOW" "💡 [Backend] To auto-fix formatting, run:"
+        print_msg "$NC" "    cd backend && uv run ruff format . && cd .."
+    fi
+
+    if [ "$RUFF_FAILED" -eq 1 ]; then
+        echo ""
+        print_msg "$RED" "❌ [Backend] Ruff checks failed. Please fix the issues above and re-commit."
+        exit 1
+    fi
 
     # 2. Check requirements.txt Consistency (auto-fix to avoid shell encoding issues on Windows)
     if ! uv export --locked --no-hashes --no-annotate --format requirements.txt | diff -q requirements.txt - > /dev/null 2>&1; then
