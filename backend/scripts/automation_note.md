@@ -21,10 +21,33 @@ uv run extract_from_json.py --input all.json --out-dir ./seeds
 
 ### Step 2：執行 migration + seed 一鍵腳本
 
+依你的作業系統選擇對應的腳本：
+
+#### Linux / macOS（Bash）
+
 ```bash
 cd backend
 bash scripts/migrate_and_seed.sh
 ```
+
+#### Windows（PowerShell）
+
+```powershell
+cd backend
+powershell -ExecutionPolicy Bypass -File scripts/migrate_and_seed.ps1
+```
+
+> **Windows 注意事項：**
+> - 需要 PowerShell 5.1+（Windows 10/11 內建）或 PowerShell 7+
+> - 如果遇到執行原則 (Execution Policy) 限制，可用 `-ExecutionPolicy Bypass` 旗標
+> - `migrate_and_seed.sh` 也可以在 Git Bash 或 WSL 下執行
+
+#### 系統相容性總覽
+
+| 腳本                     | Linux | macOS | Windows (PowerShell) | Windows (Git Bash / WSL) |
+| ------------------------ | :---: | :---: | :------------------: | :----------------------: |
+| `migrate_and_seed.sh`    |  ✅   |  ✅   |          ❌          |            ✅            |
+| `migrate_and_seed.ps1`   |  ❌   |  ❌   |          ✅          |            ❌            |
 
 此腳本會依照正確順序自動執行：
 

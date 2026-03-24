@@ -85,7 +85,7 @@ fi
 
 # Verify seed files exist
 for f in colleges_seed.generated.sql departments_seed.generated.sql teachers_seed.generated.sql \
-         courses_seed.generated.sql course_relations_seed.generated.sql; do
+         courses_seed.generated.sql course_relations_seed.generated.sql metadata_seed.generated.sql; do
     if [ ! -f "$SEEDS_DIR/$f" ]; then
         error "Missing seed file: $SEEDS_DIR/$f — run extract_from_json.py first."
     fi
@@ -134,6 +134,9 @@ run_migration "a247ff1100bf" "M5: create indexes"
 # Step 6: Migration 6 — metadata table
 # ============================================================
 run_migration "a478b363ef7f" "M6: metadata table"
+
+# Seed: metadata (version + last_update_time)
+run_sql_file "$SEEDS_DIR/metadata_seed.generated.sql"
 
 # ============================================================
 echo ""
