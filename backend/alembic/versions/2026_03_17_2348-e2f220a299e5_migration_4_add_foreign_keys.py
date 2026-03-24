@@ -26,6 +26,7 @@ def upgrade() -> None:
         referent_table="colleges",
         local_cols=["college_id"],
         remote_cols=["id"],
+        ondelete="CASCADE",
     )
 
     op.create_foreign_key(
@@ -33,7 +34,7 @@ def upgrade() -> None:
         source_table="course_teachers",
         referent_table="courses",
         local_cols=["course_id"],
-        remote_cols=["serial_no"],
+        remote_cols=["id"],
         ondelete="CASCADE",
     )
     op.create_foreign_key(
@@ -50,7 +51,7 @@ def upgrade() -> None:
         source_table="course_times",
         referent_table="courses",
         local_cols=["course_id"],
-        remote_cols=["serial_no"],
+        remote_cols=["id"],
         ondelete="CASCADE",
     )
 
@@ -59,7 +60,7 @@ def upgrade() -> None:
         source_table="course_departments",
         referent_table="courses",
         local_cols=["course_id"],
-        remote_cols=["serial_no"],
+        remote_cols=["id"],
         ondelete="CASCADE",
     )
     op.create_foreign_key(
@@ -71,9 +72,28 @@ def upgrade() -> None:
         ondelete="CASCADE",
     )
 
+    op.create_foreign_key(
+        "fk_cc_course",
+        source_table="course_colleges",
+        referent_table="courses",
+        local_cols=["course_id"],
+        remote_cols=["id"],
+        ondelete="CASCADE",
+    )
+    op.create_foreign_key(
+        "fk_cc_college",
+        source_table="course_colleges",
+        referent_table="colleges",
+        local_cols=["college_id"],
+        remote_cols=["id"],
+        ondelete="CASCADE",
+    )
+
 
 def downgrade() -> None:
     """Downgrade schema."""
+    op.drop_constraint("fk_cc_college", "course_colleges", type_="foreignkey")
+    op.drop_constraint("fk_cc_course", "course_colleges", type_="foreignkey")
     op.drop_constraint("fk_cd_dept", "course_departments", type_="foreignkey")
     op.drop_constraint("fk_cd_course", "course_departments", type_="foreignkey")
     op.drop_constraint("fk_ctime_course", "course_times", type_="foreignkey")

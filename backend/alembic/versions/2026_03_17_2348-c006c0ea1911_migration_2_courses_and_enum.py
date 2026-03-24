@@ -42,7 +42,8 @@ def upgrade() -> None:
 
     op.create_table(
         "courses",
-        sa.Column("serial_no", sa.Integer(), autoincrement=False, nullable=False),
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("external_id", sa.Integer(), nullable=False),
         sa.Column("class_no", sa.Text(), nullable=False),
         sa.Column("title", sa.Text(), nullable=False),
         sa.Column("credit", sa.SmallInteger(), nullable=False),
@@ -52,9 +53,7 @@ def upgrade() -> None:
             server_default=sa.text("'NONE'"),
             nullable=False,
         ),
-        sa.Column(
-            "limit_cnt", sa.Integer(), server_default=sa.text("0"), nullable=False
-        ),
+        sa.Column("limit_cnt", sa.Integer(), nullable=True),
         sa.Column(
             "admit_cnt", sa.Integer(), server_default=sa.text("0"), nullable=False
         ),
@@ -68,8 +67,9 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.CheckConstraint("credit > 0", name="ck_courses_credit_positive"),
-        sa.PrimaryKeyConstraint("serial_no"),
+        sa.CheckConstraint("credit >= 0", name="ck_courses_credit_nonnegative"),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("external_id", name="uq_courses_external_id"),
         sa.UniqueConstraint("class_no"),
     )
 

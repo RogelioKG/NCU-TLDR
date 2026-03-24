@@ -23,17 +23,22 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.create_table(
         "colleges",
-        sa.Column("id", sa.Text(), nullable=False),
-        sa.Column("name", sa.Text(), nullable=False),
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("code", sa.String(20), nullable=False),
+        sa.Column("name", sa.String(100), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("code", name="uq_colleges_code"),
     )
 
     op.create_table(
         "departments",
-        sa.Column("id", sa.Text(), nullable=False),
-        sa.Column("name", sa.Text(), nullable=False),
-        sa.Column("college_id", sa.Text(), nullable=False),
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("code", sa.String(20), nullable=False),
+        sa.Column("name", sa.String(100), nullable=False),
+        sa.Column("college_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("code", name="uq_departments_code"),
+        sa.UniqueConstraint("name", name="uq_departments_name"),
     )
 
     op.create_table(

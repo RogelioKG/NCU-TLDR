@@ -34,23 +34,26 @@ def upgrade() -> None:
     op.create_table(
         "course_times",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("course_id", sa.Integer(), nullable=True),
-        sa.Column("day", sa.SmallInteger(), nullable=True),
-        sa.Column("period", sa.Text(), nullable=True),
+        sa.Column("course_id", sa.Integer(), nullable=False),
+        sa.Column("day", sa.SmallInteger(), nullable=False),
+        sa.Column("period", sa.Text(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "course_id", "day", "period", name="uq_course_times_cid_day_period"
+        ),
     )
 
     op.create_table(
         "course_departments",
         sa.Column("course_id", sa.Integer(), nullable=True),
-        sa.Column("department_id", sa.Text(), nullable=True),
+        sa.Column("department_id", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("course_id", "department_id"),
     )
 
     op.create_table(
         "course_colleges",
         sa.Column("course_id", sa.Integer(), nullable=True),
-        sa.Column("college_id", sa.Text(), nullable=True),
+        sa.Column("college_id", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("course_id", "college_id"),
     )
 

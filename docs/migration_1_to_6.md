@@ -13,23 +13,22 @@
 * 正規化（Normalized Schema）
 * 多對多關聯表
 * 結構化時間欄位
-* Materialized View 加速查詢
 * 分階段 Migration + ETL
 
 ---
 
 # 🏗️ Migration 概覽
-class_no
+
 目前共有 **6 個 Alembic migrations（尚未執行）**
 
-| Migration | Revision       | 說明                           |
-| --------- | -------------- | ---------------------------- |
-| M1        | `50b6a42940f4` | 建立核心表（無 FK）                  |
-| M2        | `c006c0ea1911` | 建立 courses + ENUM            |
-| M3        | `353b43253264` | 建立關聯表（無 FK）                  |
-| M4        | `e2f220a299e5` | 加入 FK + CASCADE              |
-| M5        | `a247ff1100bf` | 建立 index（CONCURRENTLY）       |
-| M6        | `a478b363ef7f` | metadata + materialized view |
+| Migration | Revision       | 說明                        |
+| --------- | -------------- | ------------------------- |
+| M1        | `50b6a42940f4` | 建立核心表（無 FK）               |
+| M2        | `c006c0ea1911` | 建立 courses + ENUM         |
+| M3        | `353b43253264` | 建立關聯表（無 FK）               |
+| M4        | `e2f220a299e5` | 加入全部 FK + CASCADE         |
+| M5        | `a247ff1100bf` | 建立 index（CONCURRENTLY）    |
+| M6        | `a478b363ef7f` | 建立 metadata 表（ETL 時間戳記）   |
 
 ---
 
@@ -111,6 +110,19 @@ LEFT JOIN departments d ON cd.department_id = d.id
 WHERE d.id IS NULL;
 ```
 
+```sql
+-- orphan course_colleges
+SELECT *
+FROM course_colleges cc
+LEFT JOIN courses c ON cc.course_id = c.id
+WHERE c.id IS NULL;
+
+SELECT *
+FROM course_colleges cc
+LEFT JOIN colleges col ON cc.college_id = col.id
+WHERE col.id IS NULL;
+```
+
 ### ⚠️ 若有資料錯誤
 
 👉 必須先修正，否則 Migration 4 會失敗
@@ -126,7 +138,12 @@ uv run alembic -c alembic.ini upgrade e2f220a299e5
 ### 📌 說明
 
 * 開始 enforce referential integrity
-* 加入 `ON DELETE CASCADE`
+* 全部 FK 均加入 `ON DELETE CASCADE`，涵蓋：
+  * `departments → colleges`
+  * `course_teachers → courses, teachers`
+  * `course_times → courses`
+  * `course_departments → courses, departments`
+  * `course_colleges → courses, colleges`
 
 ### ⚠️ 風險
 
@@ -151,7 +168,7 @@ uv run alembic -c alembic.ini upgrade a247ff1100bf
 
 ---
 
-## 🪜 Step 7：執行 Migration 6（View + Metadata）
+## 🪜 Step 7：執行 Migration 6（Metadata）
 
 ```bash
 uv run alembic -c alembic.ini upgrade a478b363ef7f
@@ -159,16 +176,9 @@ uv run alembic -c alembic.ini upgrade a478b363ef7f
 
 ### 📌 說明
 
-* 建立 materialized view（查詢加速）
-* 建立 metadata 表（單列限制）
-
----
-
-## 🪜 Step 8：Refresh View
-
-```sql
-REFRESH MATERIALIZED VIEW CONCURRENTLY course_search_view;
-```
+* 建立 `metadata` 表（單列限制，`CHECK id = 1`）
+* 用於記錄最後一次 ETL 同步時間（`last_update_time`）
+* ETL 完成後手動 UPDATE 此欄位供前端或排程查詢
 
 ---
 
@@ -244,7 +254,7 @@ CROSS JOIN LATERAL
 
 ## ✅ 優點
 
-* 高效查詢（index + materialized view）
+* 高效查詢（index）
 * 支援衝堂分析（結構化時間）
 * 易於維護（分階段 migration）
 * 資料安全（constraints + FK）
@@ -295,13 +305,13 @@ Postgres GIN / Elastic
 
 ```bash
 # run specific migration
-uv run alembic upgrade <revision>
+uv run alembic -c alembic.ini upgrade <revision>
 
 # run all
-uv run alembic upgrade head
+uv run alembic -c alembic.ini upgrade head
 
 # rollback
-uv run alembic downgrade -1
+uv run alembic -c alembic.ini downgrade -1
 ```
 
 ---
@@ -311,7 +321,6 @@ uv run alembic downgrade -1
 這套設計已達：
 
 ✅ Production-ready
-✅ 高效能查詢
 ✅ 易維護 ETL pipeline
 
 如需擴展（選課系統 / 即時搶課 / 分散式架構），請再進一步設計。
