@@ -70,10 +70,11 @@ NCU-TLDR/
 
 ### 環境需求
 
-- **Node.js**: v20+
+- **docker compose**: v2.22.0+ (支援 `watch` 功能)
+- **node**: v20+
+- **python**: v3.12+
 - **pnpm**: v9+
-- **Python**: v3.12+ (後端開發用)
-- **Docker Desktop**: 最新穩定版 (含 `docker compose`)
+- **uv**: v0.9+
 
 ### 安裝步驟
 
@@ -102,51 +103,32 @@ NCU-TLDR/
    ```
    可參考 `frontend/.env.example`。未設定時前端使用 Mock 資料，導航列會顯示「資料: Mock」。
 
-## 🐳 Docker 開發（後端建置）
+## 🐳 Docker
 
-目前以**單一開發流程**為主，不區分 dev/prod compose。後端為單一 stage 建置，volume mount 支援 hot reload。
+本專案採用 **Multi-stage Build** 與 **Compose Watch**。
 
-### 後端建置與啟動
-
-一鍵啟動 DB + Backend + Frontend（皆含 volume、hot reload）：
-
+### 開發環境 (Hot Reload)
 ```bash
-docker compose up --build
+pnpm run docker:dev:watch
 ```
 
-- **Frontend**: http://localhost:5173  
-- **Backend**: http://localhost:8000  
-- **PostgreSQL**: localhost:5432  
-
-後端目錄 `./backend` 已掛載進容器，改碼後 uvicorn `--reload` 會自動重啟。
-
-### 本機僅跑後端（不用 Docker）
-
-若只在本機開發後端、DB 用 Docker：
-
+### 正式環境 (Production)
 ```bash
-# 終端 1：只起 DB
-docker compose up db -d
+# 啟動
+pnpm run docker:prod:up
 
-# 終端 2：backend 目錄用 uv
-cd backend
-uv sync
-uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 關閉
+pnpm run docker:prod:down
 ```
 
-需設定 `DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/ncu_tldr`（或 `.env`）。
-
-### Alembic Migration
-
+### 資料庫遷移 (Alembic)
 ```bash
-docker compose exec backend uv run alembic upgrade head
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend uv run alembic upgrade head
 ```
 
 ### 注意事項
-
-- 容器內連 DB 請用 service name `db`，勿用 `localhost`。
-- 資料庫資料持久化於 volume `pgdata`。
-- 生產用 `docker-compose.prod.yml` 與多 stage 建置留待日後需要時再啟用。
+- 容器內連線資料庫 Hostname 請使用 `db`。
+- 資料持久化於 `pgdata` volume。
 
 ### 測試
 
