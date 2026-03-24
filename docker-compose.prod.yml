@@ -1,15 +1,21 @@
+name: ncu-tldr-prod
 services:
-  backend:
-    build:
-      target: production
-    command: uv run uvicorn main:app --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
 
   frontend:
     build:
-      target: production
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "80:8080"
     depends_on:
       - backend
+
+  backend:
+    build:
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped

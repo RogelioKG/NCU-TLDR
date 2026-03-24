@@ -1,37 +1,64 @@
-# syntax=docker/dockerfile:1.7
-
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
-
-WORKDIR /app
-
-ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    UV_NO_DEV=1 \
-    UV_PYTHON_DOWNLOADS=0
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev
-
-COPY . /app
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
-
-FROM python:3.12-slim-bookworm
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS base
 
 RUN groupadd --system --gid 999 nonroot \
     && useradd --system --gid 999 --uid 999 --create-home nonroot
 
-WORKDIR /app
+WORKDIR /app/
 
-COPY --from=builder --chown=nonroot:nonroot /app /app
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=0
 
-ENV PATH="/app/.venv/bin:$PATH"
+EXPOSE 8000
+
+
+FROM base AS dev
+
+COPY --chown=nonroot:nonroot pyproject.toml uv.lock* ./
+
+RUN --mount=type=cache,target=/root/.cache/uv/ \
+    uv sync --no-install-project
+
+COPY --chown=nonroot:nonroot . ./
+
+RUN --mount=type=cache,target=/root/.cache/uv/ \
+    uv sync
+
+ENV PATH="/app/.venv/bin/:$PATH"
+
+ENTRYPOINT []
 
 USER nonroot
 
-EXPOSE 8000
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+FROM base AS builder
+
+ENV UV_NO_DEV=1
+
+RUN --mount=type=cache,target=/root/.cache/uv/ \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
+
+COPY . ./
+
+RUN --mount=type=cache,target=/root/.cache/uv/ \
+    uv sync --frozen --no-dev
+
+
+FROM python:3.12-slim-bookworm AS prod
+
+RUN groupadd --system --gid 999 nonroot \
+    && useradd --system --gid 999 --uid 999 --create-home nonroot
+
+WORKDIR /app/
+
+COPY --from=builder --chown=nonroot:nonroot /app/ ./
+
+ENV PATH="/app/.venv/bin/:$PATH"
+
+USER nonroot
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
