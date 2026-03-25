@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ApiError } from '@/api/client'
+import wishingAnimation from '@/assets/wishing_animation_3s.mp4'
 import { useCoursePairsStore } from '@/stores/useCoursePairsStore'
 import { useWishStore } from '@/stores/useWishStore'
 
@@ -26,6 +27,7 @@ const form = reactive<WishFormPayload>({
 
 const submissionState = ref<SubmissionState>('idle')
 const failureReason = ref('')
+const videoRef = ref<HTMLVideoElement | null>(null)
 
 onMounted(async () => {
   await pairsStore.fetchPairs()
@@ -103,7 +105,7 @@ function handleRetry() {
     <Transition name="wish-fade">
       <div v-show="true" class="wish-overlay" @click="handleOverlayClick">
         <div class="wish-toast" role="dialog" aria-label="課程許願池表單">
-          <div class="wish-toast__header">
+          <div v-if="submissionState !== 'success'" class="wish-toast__header">
             <h3 class="wish-toast__title">
               課程許願池
             </h3>
@@ -128,14 +130,19 @@ function handleRetry() {
                 role="status"
                 aria-live="polite"
               >
-                <div class="wish-toast__result-icon">
-                  ✓
-                </div>
-                <p class="wish-toast__result-text">
-                  許願成功，已加入許願池
-                </p>
+                <h3 class="wish-toast__success-title">
+                  課程女神眷顧我
+                </h3>
+                <video
+                  ref="videoRef"
+                  class="wish-toast__video"
+                  :src="wishingAnimation"
+                  autoplay
+                  muted
+                  playsinline
+                />
                 <button class="wish-toast__result-btn" type="button" @click="emit('close')">
-                  完成
+                  太棒了！
                 </button>
               </div>
               <div
@@ -357,7 +364,23 @@ function handleRetry() {
 }
 
 .wish-toast__result--success {
-  /* reserved for future success animation */
+  padding: 0;
+}
+
+.wish-toast__video {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  display: block;
+  margin: 0 auto var(--spacing-md);
+}
+
+.wish-toast__success-title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
 }
 
 .wish-toast__result--failure {
