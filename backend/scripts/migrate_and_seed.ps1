@@ -26,6 +26,7 @@ chcp 65001 | Out-Null
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SeedsDir = Join-Path $ScriptDir "seeds"
 $BackendDir = Split-Path -Parent $ScriptDir
+$RootDir = Split-Path -Parent $BackendDir
 
 # DB connection defaults (override via env vars)
 $DB_HOST     = if ($env:DB_HOST)     { $env:DB_HOST }     else { "localhost" }
@@ -69,9 +70,9 @@ function Run-SqlFile {
         if ($LASTEXITCODE -ne 0) { Error "Seeding $Filename failed." }
     } else {
         Warn "psql not found locally, using docker exec..."
-        $container = docker compose ps -q db 2>$null
+        $container = docker compose -f "$RootDir/docker-compose.yml" -f "$RootDir/docker-compose.dev.yml" ps -q db 2>$null
         if (-not $container) {
-            $container = docker-compose ps -q db 2>$null
+            $container = docker compose ps -q db 2>$null
         }
         if (-not $container) {
             Error "Cannot find running db container. Is 'docker compose up db' running?"

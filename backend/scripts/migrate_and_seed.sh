@@ -17,6 +17,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SEEDS_DIR="$SCRIPT_DIR/seeds"
 BACKEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT_DIR="$(cd "$BACKEND_DIR/.." && pwd)"
 
 # DB connection defaults (override via env vars)
 DB_HOST="${DB_HOST:-localhost}"
@@ -63,7 +64,7 @@ run_sql_file() {
     else
         warn "psql not found locally, using docker exec..."
         local container
-        container=$(docker compose ps -q db 2>/dev/null || docker-compose ps -q db 2>/dev/null)
+        container=$(docker compose -f "$ROOT_DIR/docker-compose.yml" -f "$ROOT_DIR/docker-compose.dev.yml" ps -q db 2>/dev/null || docker compose ps -q db 2>/dev/null)
         if [ -z "$container" ]; then
             error "Cannot find running db container. Is 'docker compose up db' running?"
         fi
