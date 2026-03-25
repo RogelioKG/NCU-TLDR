@@ -26,15 +26,14 @@ uv run extract_from_json.py --input all.json --out-dir ./seeds
 #### Linux / macOS（Bash）
 
 ```bash
-cd backend
-bash scripts/migrate_and_seed.sh
+chmod +x migrate_and_seed.sh
+./migrate_and_seed.sh
 ```
 
 #### Windows（PowerShell）
 
 ```powershell
-cd backend
-powershell -ExecutionPolicy Bypass -File scripts/migrate_and_seed.ps1
+powershell -ExecutionPolicy Bypass -File migrate_and_seed.ps1
 ```
 
 > **Windows 注意事項：**
