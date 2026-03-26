@@ -78,65 +78,68 @@ NCU-TLDR/
 
 ### 安裝步驟
 
+本專案已配置好完整的 Docker 環境，並支援熱重載 (Hot Reload)，建議直接透過 Docker 進行開發。
+
 1. **Clone 專案**
    ```bash
-   git clone https://github.com/your-username/NCU-TLDR.git
-   cd NCU-TLDR
+   git clone https://github.com/RogelioKG/ncu-tldr.git
+   cd ncu-tldr
    ```
 
-2. **安裝依賴 (Frontend)**
+2. **啟動開發環境**
    ```bash
-   cd frontend
-   pnpm install
+   pnpm run docker:dev:watch
    ```
 
-3. **啟動開發伺服器**
+3. **初始化資料庫**
    ```bash
-   pnpm run dev
+   cd backend
+   uv run alembic upgrade head
    ```
-   瀏覽器將自動開啟 `http://localhost:5173`。
 
-4. **（選用）接後端 API**  
-   要讓前端打真實後端與 DB，在 `frontend` 目錄新增 `.env` 或 `.env.local`，設定：
+4. **獲取測試資料 SQL 腳本**
    ```bash
-   VITE_API_BASE_URL=http://localhost:8000
+   uv run scripts/extract_from_json.py --input scripts/all.json --out-dir scripts/seeds
    ```
-   可參考 `frontend/.env.example`。未設定時前端使用 Mock 資料，導航列會顯示「資料: Mock」。
+
+5. **匯入測試資料**
+   - **Windows (PowerShell)**
+     ```powershell
+     powershell -ExecutionPolicy Bypass -File scripts/migrate_and_seed.ps1
+     ```
+   - **Linux / macOS**
+     ```bash
+     bash scripts/migrate_and_seed.sh
+     ```
+
+6. **開始開發**
+   - 前端：[http://localhost:5173](http://localhost:5173)
+   - 後端 API 文檔：[http://localhost:8000/docs](http://localhost:8000/docs)
+
 
 ## 🐳 Docker
 
 本專案採用 **Multi-stage Build** 與 **Compose Watch**。
 
-### 開發環境 (Hot Reload)
-```bash
-pnpm run docker:dev:watch
-```
+### 開發環境 (dev)
++ 啟動 (熱重載)
+   ```bash
+   pnpm run docker:dev:watch
+   ```
++ 關閉 (移除容器)
+   ```bash
+   pnpm run docker:dev:down
+   ```
 
-### 正式環境 (Production)
-```bash
-# 啟動
-pnpm run docker:prod:up
-
-# 關閉
-pnpm run docker:prod:down
-```
-
-### 資料庫遷移 (Alembic)
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend uv run alembic upgrade head
-```
-
-### 注意事項
-- 容器內連線資料庫 Hostname 請使用 `db`。
-- 資料持久化於 `pgdata` volume。
-
-### 測試
-
-執行前端單元測試：
-```bash
-cd frontend
-pnpm test
-```
+### 正式環境 (prod)
++ 啟動
+   ```bash
+   pnpm run docker:prod:up
+   ```
++ 關閉 (移除容器)
+   ```bash
+   pnpm run docker:prod:down
+   ```
 
 ## 🤝 參與貢獻
 
