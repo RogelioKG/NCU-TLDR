@@ -1,16 +1,16 @@
 from fastapi import (
     APIRouter,
     BackgroundTasks,
-    Header,
     Body,
     Depends,
+    Header,
     HTTPException,
 )
 from sqlalchemy import text
 
+from app.config import get_settings
 from app.db.deps import get_db
 from app.services.sync_courses import generate_course_sync_sql
-from app.config import get_settings
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -28,6 +28,11 @@ async def sync_courses_task(raw_json: dict):
             for sql in sql_scripts:
                 await db.execute(text(sql))
         break
+
+
+@router.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
 
 
 @router.post("/sync", status_code=202, dependencies=[Depends(verify_sync_secret_key)])

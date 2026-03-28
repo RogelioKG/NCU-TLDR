@@ -99,7 +99,7 @@ NCU-TLDR/
 4. **資料庫灌入資料**
    ```bash
    cd ./backend/scripts
-   curl -X POST http://localhost:8000/api/admin/sync -H "X-SYNC-SECRET-KEY: change-me-in-production" -H "Content-Type: application/json" -d "@all.json"
+   curl -X POST http://localhost:8000/api/v1/admin/sync -H "X-SYNC-SECRET-KEY: change-me-in-production" -H "Content-Type: application/json" -d "@all.json"
    ```
 
 5. **開始開發**

@@ -25,7 +25,10 @@ def _to_wish_schema(wish: Wish) -> WishCourse:
     )
 
 
-@router.get("", response_model=list[WishCourse])
+@router.get(
+    "",
+    response_model=list[WishCourse],
+)
 async def get_wishlist(
     db: AsyncSession = Depends(get_db),
 ) -> list[WishCourse]:
@@ -33,7 +36,11 @@ async def get_wishlist(
     return [_to_wish_schema(w) for w in result.scalars().all()]
 
 
-@router.post("", response_model=WishCourse, status_code=201)
+@router.post(
+    "",
+    response_model=WishCourse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_wish(
     payload: WishCreate,
     db: AsyncSession = Depends(get_db),
@@ -129,7 +136,7 @@ async def toggle_vote(
     return _to_wish_schema(wish)
 
 
-@router.delete("/{wish_id}", status_code=204)
+@router.delete("/{wish_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_wish(
     wish_id: int,
     db: AsyncSession = Depends(get_db),

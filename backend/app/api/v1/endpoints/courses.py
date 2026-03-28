@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -118,5 +116,11 @@ def _parse_sort(sort: str | None) -> tuple[str, bool]:
         field, direction = normalized.split(":", 1)
         return field, direction.lower() != "asc"
     if normalized.startswith("-"):
-        return normalized[1:], True
-    return normalized, False
+        return normalized[1:], False
+    return normalized, True
+
+
+def _format_date(created_at) -> str:
+    if created_at is None:
+        return ""
+    return created_at.strftime("%Y/%m/%d")

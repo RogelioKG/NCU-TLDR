@@ -25,7 +25,10 @@ def _user_response(user: User) -> UserResponse:
     )
 
 
-@router.post("/login", response_model=AuthTokenResponse)
+@router.post(
+    "/login",
+    response_model=AuthTokenResponse,
+)
 async def login(
     payload: LoginRequest,
     db: AsyncSession = Depends(get_db),
@@ -40,7 +43,11 @@ async def login(
     return AuthTokenResponse(accessToken=token, user=_user_response(user))
 
 
-@router.post("/register", response_model=AuthTokenResponse, status_code=201)
+@router.post(
+    "/register",
+    response_model=AuthTokenResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def register(
     payload: RegisterRequest,
     db: AsyncSession = Depends(get_db),

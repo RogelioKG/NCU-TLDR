@@ -24,3 +24,17 @@ dev = [
     "pytest-asyncio>=1.2.0",
     "ruff>=0.15.2",
 ]
+
+# [tool.ruff.lint]
+# select = [
+#     "E",  # pycodestyle errors
+#     "W",  # pycodestyle warnings
+#     "F",  # pyflakes
+#     "I",  # isort
+#     "C",  # flake8-comprehensions
+#     "B",  # flake8-bugbear
+#     "UP", # pyupgrade
+# ]
+
+# [tool.ruff.format]
+# quote-style = "double"

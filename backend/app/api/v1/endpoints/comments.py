@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ from app.models.course import Course
 from app.models.user import User
 from app.schemas.comment import CommentCreate, CommentOut
 
-router = APIRouter(prefix="/courses/{course_id}/comments", tags=["comments"])
+router = APIRouter(prefix="/courses", tags=["comments"])
 
 
 def _format_date(created_at) -> str:
@@ -19,7 +19,10 @@ def _format_date(created_at) -> str:
     return created_at.strftime("%Y/%m/%d")
 
 
-@router.get("", response_model=list[CommentOut])
+@router.get(
+    "/{course_id}/comments",
+    response_model=list[CommentOut],
+)
 async def get_comments(
     course_id: int,
     db: AsyncSession = Depends(get_db),
@@ -45,7 +48,11 @@ async def get_comments(
     ]
 
 
-@router.post("", response_model=CommentOut, status_code=201)
+@router.post(
+    "/{course_id}/comments",
+    response_model=CommentOut,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_comment(
     course_id: int,
     payload: CommentCreate,
