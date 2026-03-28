@@ -8,7 +8,6 @@
 #
 # Prerequisites:
 #   - Docker postgres is running (docker compose up db)
-#   - .env is configured with DATABASE_URL_SYNC
 #   - uv is installed
 #   - psql client is available (or uses docker exec as fallback)
 
